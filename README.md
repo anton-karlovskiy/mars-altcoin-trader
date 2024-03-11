@@ -7,9 +7,9 @@
   * sell(dexType, pairAddress, amount, prviateKey): { sucess, buyAmount, sellAmount, txid }
 
 - Supported dexes
-  * uniswap v2
-  * uniswap v3
-  * pancakeswap
+  * Uniswap v2
+  * Uniswap v3
+  * Pancakeswap
 
 - Strategies
   * simple-tpsl
