@@ -18,9 +18,7 @@
 - Routes
 
 
-UNI/ETH
-
-parameters\0.02 100, 10, 50
+e.g. UNI/ETH
 
 ### Open-source projects
 
