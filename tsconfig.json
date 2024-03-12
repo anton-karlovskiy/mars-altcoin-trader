@@ -1,12 +1,33 @@
 {
     "compilerOptions": {
-      "target": "es5",   // Adjust based on your project's needs (e.g., es2015)
+      "target": "es5", // Adjust based on your project's needs (e.g., es2015)
       "module": "commonjs",
       "strict": true,
-      "outFile": "dist/index.js", // Optional output file for compiled JS
-      "lib": ["dom", "dom.iterable", "esnext"],  // Consider including necessary libraries
-      "allowJs": true   // Allow usage of existing JavaScript files
+      "outDir": "dist", // Optional output file for compiled JS
+      "lib": ["dom", "dom.iterable", "esnext"], // Consider including necessary libraries
+      "allowJs": true, // Allow usage of existing JavaScript files
+      "skipLibCheck": true /* Skip type checking all .d.ts files. */,
+      "baseUrl": "src" /* Specify the base directory to resolve non-relative module names. */,
+      "paths": {
+          "@/*": ["*"]
+      } /* Specify a set of entries that re-map imports to additional lookup locations. */,
+      "plugins": [
+          /* Transform paths in output .js files */
+          {
+              "transform": "typescript-transform-paths"
+          },
+          /* Transform paths in output .d.ts files */
+          {
+              "transform": "typescript-transform-paths",
+              "afterDeclarations": true
+          }
+      ]
     },
-    "include": ["src"]  // Specify source directory for TypeScript files
+    "ts-node": {
+      "transpileOnly": true,
+      "files": true
+    },
+    "include": ["src/**/*"], // Specify source directory for TypeScript files
+    "exclude": ["node_modules", "dist"]
   }
   

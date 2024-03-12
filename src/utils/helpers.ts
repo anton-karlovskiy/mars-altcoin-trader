@@ -4,7 +4,7 @@ import {
 } from 'ethers';
 import { ChainId } from '@uniswap/sdk-core';
 
-import { INFURA_API_KEY } from '../config/keys';
+import { INFURA_API_KEY } from '@/config/keys';
 
 const getProvider = () => {
   if (!INFURA_API_KEY) {

@@ -4,14 +4,23 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node src/index.ts",
+    "ts-prepare": "ts-patch install -s",
+    "start:dev": "npm run ts-prepare && ts-node ./src/index.ts",
+    "start:prod": "node ./build/index.js",
+    "build": "tsc && tsc-alias",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "ts-node": "^10.9.2"
+    "@types/node": "^20.11.26",
+    "ts-node": "^10.9.2",
+    "ts-patch": "^3.1.2",
+    "tsc-alias": "^1.8.8",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.4.2",
+    "typescript-transform-paths": "^3.4.7"
   },
   "dependencies": {
     "@uniswap/v2-sdk": "^4.3.0",
