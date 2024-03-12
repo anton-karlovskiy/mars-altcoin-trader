@@ -3,8 +3,8 @@
 - Scripts
   * getBuyInfo(dexType, pairAddress, amount): { amount, slippage, price }
   * getSellInfo(dexType, pairAddress, amount): { amount, slippage, price }
-  * buy(dexType, pairAddress, amount, privateKey): { success, buyAmount, sellAmount, txid }
-  * sell(dexType, pairAddress, amount, prviateKey): { sucess, buyAmount, sellAmount, txid }
+  * buy(dexType, pairAddress, amount, privateKey): { success, buyAmount, sellAmount, txId }
+  * sell(dexType, pairAddress, amount, privateKey): { success, buyAmount, sellAmount, txId }
 
 - Supported dexes
   * Uniswap v2
@@ -12,8 +12,8 @@
   * Pancakeswap
 
 - Strategies
-  * simple-tpsl
-    * input parameters: privateKey, entryPrice, tp, sl, amount, pairAddress, dexType
+  * simple-TPSL
+    * input parameters: privateKey, entryPrice, TP, SL, amount, pairAddress, dexType
 
 - Routes
 
@@ -31,3 +31,9 @@ e.g. UNI/ETH
 - [v2-sdk](https://github.com/Uniswap/v2-sdk)
 
 - [Decentralized-Exchange-Trading-Scripts](https://github.com/henrytirla/Decentralized-Exchange-Trading-Scripts)
+
+### TODOs
+
+- [simple-uniswap-sdk](https://github.com/joshstevens19/simple-uniswap-sdk) vs. [v2-sdk](https://github.com/Uniswap/v2-sdk)
+- Set up `ESLint`.
+- Set up `Prettier`.

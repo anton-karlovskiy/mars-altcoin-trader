@@ -12,5 +12,9 @@
   "license": "ISC",
   "devDependencies": {
     "ts-node": "^10.9.2"
+  },
+  "dependencies": {
+    "@uniswap/v2-sdk": "^4.3.0",
+    "ethers": "^6.11.1"
   }
 }
