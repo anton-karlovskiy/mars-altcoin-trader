@@ -1,4 +1,3 @@
-// ray test touch <
 import {
   JsonRpcProvider,
   Network
@@ -27,4 +26,3 @@ const getProvider = (): JsonRpcProvider => {
 export {
   getProvider
 };
-// ray test touch >

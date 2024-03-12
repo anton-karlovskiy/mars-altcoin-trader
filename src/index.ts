@@ -3,9 +3,7 @@ import {
   Token
 } from '@uniswap/sdk-core';
 
-// ray test touch <
 import { getProvider } from './utils/helpers';
-// ray test touch >
 
 const main = async () => {
   const chainId = ChainId.MAINNET;
@@ -16,12 +14,10 @@ const main = async () => {
 
   console.log(DAI);
   
-  // ray test touch <
   const provider = getProvider();
   const blockNumber = await provider.getBlockNumber();
   
   console.log(blockNumber);
-  // ray test touch >
 };
 
 main();
