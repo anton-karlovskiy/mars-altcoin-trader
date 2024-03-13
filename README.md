@@ -1,5 +1,7 @@
 ## mars-altcoin-trader
 
+### Features
+
 - Scripts
   * getBuyInfo(dexType, pairAddress, amount): { amount, slippage, price }
   * getSellInfo(dexType, pairAddress, amount): { amount, slippage, price }
@@ -19,6 +21,13 @@
 
 
 e.g. UNI/ETH
+
+## Assumptions (proof of concept)
+
+- Ethereum mainnet
+- Uniswap V2
+- Routes consist of only one pair (direct pair).
+- Token/ETH pools
 
 ### Open-source projects
 
