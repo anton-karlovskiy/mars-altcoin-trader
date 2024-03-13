@@ -37,8 +37,10 @@ const getProvider = (chainId: ChainId) => {
   );
 };
 
-const getDecimals = async (tokenAddress: string, provider: JsonRpcProvider): Promise<bigint> => {
+const getDecimals = async (tokenAddress: string, chainId: ChainId): Promise<bigint> => {
   try {
+    const provider = getProvider(chainId);
+
     const tokenContract = new Contract(tokenAddress, IUniswapV2ERC20.abi, provider);
   
     return await tokenContract['decimals']();
@@ -47,10 +49,11 @@ const getDecimals = async (tokenAddress: string, provider: JsonRpcProvider): Pro
   }
 };
 
-const createPair = async (tokenA: Token, tokenB: Token, provider: JsonRpcProvider): Promise<Pair> => {
+const createPair = async (tokenA: Token, tokenB: Token, chainId: ChainId): Promise<Pair> => {
   try {
     const pairAddress = Pair.getAddress(tokenA, tokenB);
 
+    const provider = getProvider(chainId);
     const pairContract = new Contract(pairAddress, IUniswapV2Pair.abi, provider);
     const reserves: bigint[] = await pairContract['getReserves']();
     const [reserve0, reserve1] = reserves;
