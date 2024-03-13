@@ -1,12 +1,12 @@
 import {
   ChainId,
   WETH9,
-  CurrencyAmount,
   Percent
 } from '@uniswap/sdk-core';
-// ray test touch <
-import { Contract, parseUnits } from 'ethers';
-// ray test touch >
+import {
+  Contract,
+  parseUnits
+} from 'ethers';
 
 import {
   createToken,
@@ -15,11 +15,9 @@ import {
   createTrade,
   getSigner
 } from '@/utils/helpers';
-// ray test touch <
 import IUniswapV2Router02 from '@uniswap/v2-periphery/build/IUniswapV2Router02.json';
 
 import { UNISWAP_V2_ROUTER_02_ADDRESS } from '@/constants/addresses';
-// ray test touch >
 
 const main = async () => {
   const targetChainId = ChainId.GOERLI;
@@ -49,8 +47,8 @@ const main = async () => {
     const to = signer.address; // Should be a check-summed recipient address
     const deadline = Math.floor(Date.now() / 1000) + 60 * 20 // 20 minutes from the current Unix time
     const value = trade.inputAmount.toExact() // Needs to be converted to e.g. decimal string
-    console.log('ray : **** amountOutMin => ', amountOutMin);
-    console.log('ray : **** value => ', value);
+    console.log('ray : ***** amountOutMin => ', amountOutMin);
+    console.log('ray : ***** value => ', value);
 
     const transaction = await uniswapV2Router02Contract.swapExactETHForTokens(
       parseUnits(amountOutMin, DAI.decimals),
@@ -59,7 +57,9 @@ const main = async () => {
       deadline,
       {
         value: parseUnits(value, WETH.decimals),
-        // gasLimit: 21000, // Optional: Gas limit for the transaction
+        // RE: https://github.com/ethers-io/ethers.js/discussions/3297#discussioncomment-4074779
+        gasPrice: parseUnits("500.0", "gwei"), // Optional: Gas price (in Gwei)
+        gasLimit: 210000, // Optional: Gas limit for the transaction
       }
     );
 

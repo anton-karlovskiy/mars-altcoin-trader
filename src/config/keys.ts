@@ -2,9 +2,7 @@
 
 const INFURA_API_KEY = '529882cf33164ad9b6d20b276b8f9a71';
 
-// ray test touch <
 const WALLET_ACCOUNT_PRIVATE_KEY = 'f333db95e468468bbb5213c3d80866231cfb8b13c53c2c15e01ad0d8ed954fe2';
-// ray test touch >
 
 export {
   INFURA_API_KEY,

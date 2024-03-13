@@ -35,11 +35,9 @@ const getProvider = (chainId: ChainId) => {
     case ChainId.MAINNET:
       infuraEndpoint = `https://mainnet.infura.io/v3/${INFURA_API_KEY}`;
       break;
-    // ray test touch <
     case ChainId.GOERLI:
       infuraEndpoint = `https://goerli.infura.io/v3/${INFURA_API_KEY}`;
       break;
-    // ray test touch >
     default:
       throw new Error('Invalid blockchain network!');
   }
@@ -52,7 +50,6 @@ const getProvider = (chainId: ChainId) => {
   );
 };
 
-// ray test touch <
 const getSigner = (chainId: ChainId) => {
   if (!WALLET_ACCOUNT_PRIVATE_KEY) {
     throw new Error('Wallet account private key is undefined!');
@@ -62,7 +59,6 @@ const getSigner = (chainId: ChainId) => {
 
   return new Wallet(WALLET_ACCOUNT_PRIVATE_KEY, provider);
 };
-// ray test touch >
 
 const getDecimals = async (tokenAddress: string, chainId: ChainId) => {
   try {
@@ -78,11 +74,15 @@ const getDecimals = async (tokenAddress: string, chainId: ChainId) => {
 
 const createToken = async (tokenAddress: string, chainId: ChainId, decimals: number | undefined = undefined) => {
   try {
+	  // ray test touch <
     console.log('Hi createToken');
+	  // ray test touch >
     if (!decimals) {
       decimals = await getDecimals(tokenAddress, chainId);
     }
+    // ray test touch <
     console.log('ray : ***** decimals => ', decimals);
+    // ray test touch >
   
     return new Token(chainId, tokenAddress, decimals);
   } catch (error) {
@@ -93,12 +93,19 @@ const createToken = async (tokenAddress: string, chainId: ChainId, decimals: num
 const createPair = async (tokenA: Token, tokenB: Token) => {
   try {
     const pairAddress = Pair.getAddress(tokenA, tokenB);
+    // ray test touch <
     console.log('ray : ***** pairAddress => ', pairAddress);
+    // ray test touch >
 
     const provider = getProvider(tokenA.chainId);
     const pairContract = new Contract(pairAddress, IUniswapV2Pair.abi, provider);
-    console.log('Hi createPair');
+	  // ray test touch <
+    console.log('Before getReserves');
+	  // ray test touch >
     const reserves: bigint[] = await pairContract['getReserves']();
+    // ray test touch <
+    console.log('After getReserves');
+	  // ray test touch >
     
     const [reserve0, reserve1] = reserves;
     
@@ -122,7 +129,9 @@ const createPair = async (tokenA: Token, tokenB: Token) => {
 // Execution Price
 const calculateExePrice = async (baseToken: Token, quoteToken: Token, baseTokenAmount = 1, significantDigits = 6) => {
   try {
+	  // ray test touch <
     console.log('Hi calculateExePrice');
+	  // ray test touch >
     const pair = await createPair(quoteToken, baseToken);
 
     const route = new Route([pair], baseToken, quoteToken); // Only the direct pair case is considered.
@@ -138,7 +147,9 @@ const calculateExePrice = async (baseToken: Token, quoteToken: Token, baseTokenA
 // Mid Price
 const calculateMidPrice = async (baseToken: Token, quoteToken: Token, significantDigits = 6) => {
   try {
+	  // ray test touch <
     console.log('Hi calculateMidPrice');
+	  // ray test touch >
     const pair = await createPair(quoteToken, baseToken);
 
     const route = new Route([pair], baseToken, quoteToken); // Only the direct pair case is considered.
