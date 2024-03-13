@@ -5,7 +5,7 @@ import {
 
 import {
   createToken,
-  createPair
+  calculateExecutionPrice
 } from '@/utils/helpers';
 
 const main = async () => {
@@ -14,8 +14,8 @@ const main = async () => {
   const DAI = await createToken('0x6B175474E89094C44Da98b954EedeAC495271d0F', targetChainId);
   const WETH = WETH9[targetChainId];
 
-  const pair = await createPair(DAI, WETH);
-  console.log(pair);
+  const executionPrice = await calculateExecutionPrice(WETH, DAI, BigInt(1000), 10);
+  console.log(executionPrice);
 };
 
 main();

@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-      "target": "es5", // Adjust based on your project's needs (e.g., es2015)
+      "target": "ES2020", // Adjust based on your project's needs (e.g., es2015)
       "module": "commonjs",
       "strict": true,
       "outDir": "dist", // Optional output file for compiled JS

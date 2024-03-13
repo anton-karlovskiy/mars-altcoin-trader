@@ -6,9 +6,14 @@ import {
 import {
   ChainId,
   Token,
-  CurrencyAmount
+  CurrencyAmount,
+  TradeType
 } from '@uniswap/sdk-core';
-import { Pair } from '@uniswap/v2-sdk';
+import {
+  Pair,
+  Route,
+  Trade
+} from '@uniswap/v2-sdk';
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json';
 import IUniswapV2ERC20 from '@uniswap/v2-core/build/IUniswapV2ERC20.json';
 
@@ -37,7 +42,7 @@ const getProvider = (chainId: ChainId) => {
   );
 };
 
-const getDecimals = async (tokenAddress: string, chainId: ChainId): Promise<number> => {
+const getDecimals = async (tokenAddress: string, chainId: ChainId) => {
   try {
     const provider = getProvider(chainId);
 
@@ -49,15 +54,19 @@ const getDecimals = async (tokenAddress: string, chainId: ChainId): Promise<numb
   }
 };
 
-const createToken = async (tokenAddress: string, chainId: ChainId, decimals: number | undefined = undefined): Promise<Token> => {
-  if (!decimals) {
-    decimals = await getDecimals(tokenAddress, chainId);
+const createToken = async (tokenAddress: string, chainId: ChainId, decimals: number | undefined = undefined) => {
+  try {
+    if (!decimals) {
+      decimals = await getDecimals(tokenAddress, chainId);
+    }
+  
+    return new Token(chainId, tokenAddress, decimals);
+  } catch (error) {
+    throw new Error(`Something went wrong: ${error}`);
   }
-
-  return new Token(chainId, tokenAddress, decimals);
 };
 
-const createPair = async (tokenA: Token, tokenB: Token): Promise<Pair> => {
+const createPair = async (tokenA: Token, tokenB: Token) => {
   try {
     const pairAddress = Pair.getAddress(tokenA, tokenB);
 
@@ -77,9 +86,28 @@ const createPair = async (tokenA: Token, tokenB: Token): Promise<Pair> => {
   }
 };
 
+// baseToken: ETH
+// quoteToken: DAI
+// The amount of DAI per 1 WETH
+// RE: https://docs.uniswap.org/sdk/v2/guides/pricing
+const calculateExecutionPrice = async (baseToken: Token, quoteToken: Token, baseTokenAmount = BigInt(1), significantDigits = 6) => {
+  try {
+    const pair = await createPair(quoteToken, baseToken);
+
+    const route = new Route([pair], baseToken, quoteToken); // Only the direct pair case is considered. RE: https://docs.uniswap.org/sdk/v2/guides/pricing#direct
+    const baseTokenRawAmount = baseTokenAmount * (BigInt(10) ** BigInt(baseToken.decimals));
+    const trade = new Trade(route, CurrencyAmount.fromRawAmount(baseToken, baseTokenRawAmount.toString()), TradeType.EXACT_INPUT);
+
+    return trade.executionPrice.toSignificant(significantDigits);
+  } catch (error) {
+    throw new Error(`Something went wrong: ${error}`);
+  }
+};
+
 export {
   getProvider,
   getDecimals,
   createPair,
-  createToken
+  createToken,
+  calculateExecutionPrice
 };
