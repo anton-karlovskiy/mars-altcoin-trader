@@ -5,7 +5,8 @@ import {
 
 import {
   createToken,
-  calculateExecutionPrice
+  calculateExePrice,
+  calculateMidPrice
 } from '@/utils/helpers';
 
 const main = async () => {
@@ -14,8 +15,11 @@ const main = async () => {
   const DAI = await createToken('0x6B175474E89094C44Da98b954EedeAC495271d0F', targetChainId);
   const WETH = WETH9[targetChainId];
 
-  const executionPrice = await calculateExecutionPrice(WETH, DAI, BigInt(1000), 10);
-  console.log(executionPrice);
+  const exePrice = await calculateExePrice(WETH, DAI, BigInt(1), 10);
+  console.log('Execution Price:', exePrice);
+
+  const midPrice = await calculateMidPrice(WETH, DAI, 10);
+  console.log('Mid Price', midPrice);
 };
 
 main();

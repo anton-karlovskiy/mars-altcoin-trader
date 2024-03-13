@@ -90,15 +90,31 @@ const createPair = async (tokenA: Token, tokenB: Token) => {
 // quoteToken: DAI
 // The amount of DAI per 1 WETH
 // RE: https://docs.uniswap.org/sdk/v2/guides/pricing
-const calculateExecutionPrice = async (baseToken: Token, quoteToken: Token, baseTokenAmount = BigInt(1), significantDigits = 6) => {
+// RE: https://docs.uniswap.org/sdk/v2/guides/pricing#direct
+
+// Execution Price
+const calculateExePrice = async (baseToken: Token, quoteToken: Token, baseTokenAmount = BigInt(1), significantDigits = 6) => {
   try {
     const pair = await createPair(quoteToken, baseToken);
 
-    const route = new Route([pair], baseToken, quoteToken); // Only the direct pair case is considered. RE: https://docs.uniswap.org/sdk/v2/guides/pricing#direct
+    const route = new Route([pair], baseToken, quoteToken); // Only the direct pair case is considered.
     const baseTokenRawAmount = baseTokenAmount * (BigInt(10) ** BigInt(baseToken.decimals));
     const trade = new Trade(route, CurrencyAmount.fromRawAmount(baseToken, baseTokenRawAmount.toString()), TradeType.EXACT_INPUT);
 
     return trade.executionPrice.toSignificant(significantDigits);
+  } catch (error) {
+    throw new Error(`Something went wrong: ${error}`);
+  }
+};
+
+// Mid Price
+const calculateMidPrice = async (baseToken: Token, quoteToken: Token, significantDigits = 6) => {
+  try {
+    const pair = await createPair(quoteToken, baseToken);
+
+    const route = new Route([pair], baseToken, quoteToken); // Only the direct pair case is considered.
+
+    return route.midPrice.toSignificant(significantDigits);
   } catch (error) {
     throw new Error(`Something went wrong: ${error}`);
   }
@@ -109,5 +125,6 @@ export {
   getDecimals,
   createPair,
   createToken,
-  calculateExecutionPrice
+  calculateExePrice,
+  calculateMidPrice
 };
