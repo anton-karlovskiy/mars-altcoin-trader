@@ -37,23 +37,31 @@ const getProvider = (chainId: ChainId) => {
   );
 };
 
-const getDecimals = async (tokenAddress: string, chainId: ChainId): Promise<bigint> => {
+const getDecimals = async (tokenAddress: string, chainId: ChainId): Promise<number> => {
   try {
     const provider = getProvider(chainId);
 
     const tokenContract = new Contract(tokenAddress, IUniswapV2ERC20.abi, provider);
   
-    return await tokenContract['decimals']();
+    return Number(await tokenContract['decimals']());
   } catch (error) {
     throw new Error(`Something went wrong: ${error}`);
   }
 };
 
-const createPair = async (tokenA: Token, tokenB: Token, chainId: ChainId): Promise<Pair> => {
+const createToken = async (tokenAddress: string, chainId: ChainId, decimals: number | undefined = undefined): Promise<Token> => {
+  if (!decimals) {
+    decimals = await getDecimals(tokenAddress, chainId);
+  }
+
+  return new Token(chainId, tokenAddress, decimals);
+};
+
+const createPair = async (tokenA: Token, tokenB: Token): Promise<Pair> => {
   try {
     const pairAddress = Pair.getAddress(tokenA, tokenB);
 
-    const provider = getProvider(chainId);
+    const provider = getProvider(tokenA.chainId);
     const pairContract = new Contract(pairAddress, IUniswapV2Pair.abi, provider);
     const reserves: bigint[] = await pairContract['getReserves']();
     const [reserve0, reserve1] = reserves;
@@ -72,5 +80,6 @@ const createPair = async (tokenA: Token, tokenB: Token, chainId: ChainId): Promi
 export {
   getProvider,
   getDecimals,
-  createPair
+  createPair,
+  createToken
 };
