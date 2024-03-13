@@ -2,7 +2,8 @@ import {
   JsonRpcProvider,
   Network,
   Contract,
-  parseUnits
+  parseUnits,
+  Wallet
 } from 'ethers';
 import {
   ChainId,
@@ -18,11 +19,14 @@ import {
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json';
 import IUniswapV2ERC20 from '@uniswap/v2-core/build/IUniswapV2ERC20.json';
 
-import { INFURA_API_KEY } from '@/config/keys';
+import {
+  INFURA_API_KEY,
+  WALLET_ACCOUNT_PRIVATE_KEY
+} from '@/config/keys';
 
 const getProvider = (chainId: ChainId) => {
   if (!INFURA_API_KEY) {
-    throw new Error(`Infura API key is undefined: ${INFURA_API_KEY}`);
+    throw new Error('Infura API key is undefined!');
   }
 
   let infuraEndpoint: string;
@@ -31,6 +35,11 @@ const getProvider = (chainId: ChainId) => {
     case ChainId.MAINNET:
       infuraEndpoint = `https://mainnet.infura.io/v3/${INFURA_API_KEY}`;
       break;
+    // ray test touch <
+    case ChainId.GOERLI:
+      infuraEndpoint = `https://goerli.infura.io/v3/${INFURA_API_KEY}`;
+      break;
+    // ray test touch >
     default:
       throw new Error('Invalid blockchain network!');
   }
@@ -42,6 +51,18 @@ const getProvider = (chainId: ChainId) => {
     { staticNetwork: true }
   );
 };
+
+// ray test touch <
+const getSigner = (chainId: ChainId) => {
+  if (!WALLET_ACCOUNT_PRIVATE_KEY) {
+    throw new Error('Wallet account private key is undefined!');
+  }
+
+  const provider = getProvider(chainId);
+
+  return new Wallet(WALLET_ACCOUNT_PRIVATE_KEY, provider);
+};
+// ray test touch >
 
 const getDecimals = async (tokenAddress: string, chainId: ChainId) => {
   try {
@@ -57,9 +78,11 @@ const getDecimals = async (tokenAddress: string, chainId: ChainId) => {
 
 const createToken = async (tokenAddress: string, chainId: ChainId, decimals: number | undefined = undefined) => {
   try {
+    console.log('Hi createToken');
     if (!decimals) {
       decimals = await getDecimals(tokenAddress, chainId);
     }
+    console.log('ray : ***** decimals => ', decimals);
   
     return new Token(chainId, tokenAddress, decimals);
   } catch (error) {
@@ -70,10 +93,13 @@ const createToken = async (tokenAddress: string, chainId: ChainId, decimals: num
 const createPair = async (tokenA: Token, tokenB: Token) => {
   try {
     const pairAddress = Pair.getAddress(tokenA, tokenB);
+    console.log('ray : ***** pairAddress => ', pairAddress);
 
     const provider = getProvider(tokenA.chainId);
     const pairContract = new Contract(pairAddress, IUniswapV2Pair.abi, provider);
+    console.log('Hi createPair');
     const reserves: bigint[] = await pairContract['getReserves']();
+    
     const [reserve0, reserve1] = reserves;
     
     const tokens = [tokenA, tokenB];
@@ -96,6 +122,7 @@ const createPair = async (tokenA: Token, tokenB: Token) => {
 // Execution Price
 const calculateExePrice = async (baseToken: Token, quoteToken: Token, baseTokenAmount = 1, significantDigits = 6) => {
   try {
+    console.log('Hi calculateExePrice');
     const pair = await createPair(quoteToken, baseToken);
 
     const route = new Route([pair], baseToken, quoteToken); // Only the direct pair case is considered.
@@ -111,6 +138,7 @@ const calculateExePrice = async (baseToken: Token, quoteToken: Token, baseTokenA
 // Mid Price
 const calculateMidPrice = async (baseToken: Token, quoteToken: Token, significantDigits = 6) => {
   try {
+    console.log('Hi calculateMidPrice');
     const pair = await createPair(quoteToken, baseToken);
 
     const route = new Route([pair], baseToken, quoteToken); // Only the direct pair case is considered.
@@ -142,5 +170,6 @@ export {
   createToken,
   calculateExePrice,
   calculateMidPrice,
-  createTrade
+  createTrade,
+  getSigner
 };

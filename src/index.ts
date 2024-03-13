@@ -1,19 +1,30 @@
 import {
   ChainId,
-  WETH9
+  WETH9,
+  CurrencyAmount,
+  Percent
 } from '@uniswap/sdk-core';
+// ray test touch <
+import { Contract, parseUnits } from 'ethers';
+// ray test touch >
 
 import {
   createToken,
   calculateExePrice,
   calculateMidPrice,
-  createTrade
+  createTrade,
+  getSigner
 } from '@/utils/helpers';
+// ray test touch <
+import IUniswapV2Router02 from '@uniswap/v2-periphery/build/IUniswapV2Router02.json';
+
+import { UNISWAP_V2_ROUTER_02_ADDRESS } from '@/constants/addresses';
+// ray test touch >
 
 const main = async () => {
-  const targetChainId = ChainId.MAINNET;
+  const targetChainId = ChainId.GOERLI;
 
-  const DAI = await createToken('0x6B175474E89094C44Da98b954EedeAC495271d0F', targetChainId);
+  const DAI = await createToken('0x3ee54fa122f884ab89c39b2d7b1a0c40e426a9a9', targetChainId);
   const WETH = WETH9[targetChainId];
 
   const exePrice = await calculateExePrice(WETH, DAI, 0.1, 10);
@@ -22,8 +33,42 @@ const main = async () => {
   const midPrice = await calculateMidPrice(WETH, DAI, 10);
   console.log('Mid Price', midPrice);
 
-  const trade = await createTrade(WETH, DAI, 1);
-  console.log(trade);
+  const trade = await createTrade(WETH, DAI, 0.01);
+  // console.log(trade.executionPrice.quote(CurrencyAmount.fromRawAmount(WETH, '2000000000000000000')).toExact());
+
+  // ray test touch <
+  try {
+    const signer = getSigner(targetChainId);
+    
+    const uniswapV2Router02Contract = new Contract(UNISWAP_V2_ROUTER_02_ADDRESS, IUniswapV2Router02.abi, signer);
+  
+    const slippageTolerance = new Percent('50', '10000') // 50 bips, or 0.50%
+  
+    const amountOutMin = trade.minimumAmountOut(slippageTolerance).toExact(); // Needs to be converted to e.g. decimal string
+    const path = [WETH9[DAI.chainId].address, DAI.address];
+    const to = signer.address; // Should be a check-summed recipient address
+    const deadline = Math.floor(Date.now() / 1000) + 60 * 20 // 20 minutes from the current Unix time
+    const value = trade.inputAmount.toExact() // Needs to be converted to e.g. decimal string
+    console.log('ray : **** amountOutMin => ', amountOutMin);
+    console.log('ray : **** value => ', value);
+
+    const transaction = await uniswapV2Router02Contract.swapExactETHForTokens(
+      parseUnits(amountOutMin, DAI.decimals),
+      path,
+      to,
+      deadline,
+      {
+        value: parseUnits(value, WETH.decimals),
+        // gasLimit: 21000, // Optional: Gas limit for the transaction
+      }
+    );
+
+    await transaction.wait();
+    console.log("Swap successful!");
+  } catch (error) {
+    throw new Error(`Something went wrong: ${error}`);
+  }
+  // ray test touch >
 };
 
 main();
