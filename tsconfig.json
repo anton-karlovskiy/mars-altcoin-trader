@@ -21,7 +21,9 @@
               "transform": "typescript-transform-paths",
               "afterDeclarations": true
           }
-      ]
+      ],
+      "resolveJsonModule": true,
+      "esModuleInterop": true
     },
     "ts-node": {
       "transpileOnly": true,
