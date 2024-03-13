@@ -1,7 +1,8 @@
 import {
   JsonRpcProvider,
   Network,
-  Contract
+  Contract,
+  parseUnits
 } from 'ethers';
 import {
   ChainId,
@@ -93,12 +94,12 @@ const createPair = async (tokenA: Token, tokenB: Token) => {
 // RE: https://docs.uniswap.org/sdk/v2/guides/pricing#direct
 
 // Execution Price
-const calculateExePrice = async (baseToken: Token, quoteToken: Token, baseTokenAmount = BigInt(1), significantDigits = 6) => {
+const calculateExePrice = async (baseToken: Token, quoteToken: Token, baseTokenAmount = 1, significantDigits = 6) => {
   try {
     const pair = await createPair(quoteToken, baseToken);
 
     const route = new Route([pair], baseToken, quoteToken); // Only the direct pair case is considered.
-    const baseTokenRawAmount = baseTokenAmount * (BigInt(10) ** BigInt(baseToken.decimals));
+    const baseTokenRawAmount = parseUnits(baseTokenAmount.toString(), baseToken.decimals);
     const trade = new Trade(route, CurrencyAmount.fromRawAmount(baseToken, baseTokenRawAmount.toString()), TradeType.EXACT_INPUT);
 
     return trade.executionPrice.toSignificant(significantDigits);
@@ -120,11 +121,26 @@ const calculateMidPrice = async (baseToken: Token, quoteToken: Token, significan
   }
 };
 
+const createTrade = async (inputToken: Token, outputToken: Token, inputAmount: number) => {
+  try {
+    const pair = await createPair(inputToken, outputToken);
+  
+    const route = new Route([pair], inputToken, outputToken);
+  
+    const rawInputAmount = parseUnits(inputAmount.toString(), inputToken.decimals);
+  
+    return new Trade(route, CurrencyAmount.fromRawAmount(inputToken, rawInputAmount.toString()), TradeType.EXACT_INPUT);
+  } catch (error) {
+    throw new Error(`Something went wrong: ${error}`);
+  }
+};
+
 export {
   getProvider,
   getDecimals,
   createPair,
   createToken,
   calculateExePrice,
-  calculateMidPrice
+  calculateMidPrice,
+  createTrade
 };
