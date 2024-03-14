@@ -128,13 +128,13 @@ const buyTokens = async (inputToken: Token, outputToken: Token, inputAmount: num
     
     const uniswapV2Router02Contract = new Contract(getUniswapV2Router02Address(chainId), IUniswapV2Router02.abi, signer);
   
-    const slippageTolerance = new Percent(slippage * 100, '10000') // 50 bips, or 0.50%
+    const slippageTolerance = new Percent(slippage * 100, '10000'); // 50 bips, or 0.50%
   
-    const amountOutMin = trade.minimumAmountOut(slippageTolerance).toExact(); // Needs to be converted to e.g. decimal string
+    const amountOutMin = trade.minimumAmountOut(slippageTolerance).toExact();
     const path = [inputToken.address, outputToken.address];
-    const to = signer.address; // Should be a check-summed recipient address
-    const deadline = Math.floor(Date.now() / 1000) + 60 * 20 // 20 minutes from the current Unix time
-    const value = trade.inputAmount.toExact() // Needs to be converted to e.g. decimal string
+    const to = signer.address;
+    const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from the current Unix time
+    const value = trade.inputAmount.toExact();
 
     const transaction: TransactionResponse = await uniswapV2Router02Contract.swapExactETHForTokens(
       parseUnits(amountOutMin, outputToken.decimals),
@@ -155,6 +155,42 @@ const buyTokens = async (inputToken: Token, outputToken: Token, inputAmount: num
   }
 };
 
+const sellTokens = async (inputToken: Token, outputToken: Token, inputAmount: number, slippage: number = 0.5) => {
+  try {
+    const trade = await createTrade(inputToken, outputToken, inputAmount);
+
+    const chainId = inputToken.chainId;
+
+    const signer = getSigner(chainId);
+    
+    const uniswapV2Router02Contract = new Contract(getUniswapV2Router02Address(chainId), IUniswapV2Router02.abi, signer);
+  
+    const slippageTolerance = new Percent(slippage * 100, '10000'); // 50 bips, or 0.50%
+  
+    const amountOutMin = trade.minimumAmountOut(slippageTolerance).toExact();
+    const path = [inputToken.address, outputToken.address];
+    const to = signer.address;
+    const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from the current Unix time
+    const amountIn = trade.inputAmount.toExact();
+
+    const transaction: TransactionResponse = await uniswapV2Router02Contract.swapExactTokensForETH(
+      parseUnits(amountIn, inputToken.decimals),
+      parseUnits(amountOutMin, outputToken.decimals),
+      path,
+      to,
+      deadline,
+      {
+        gasPrice: parseUnits("500.0", "gwei"),
+        gasLimit: 210000,
+      }
+    );
+
+    return await transaction.wait();
+  } catch (error) {
+    throw new Error(`Thrown at "sellTokens": ${error}`);
+  }
+};
+
 export {
   getDecimals,
   createPair,
@@ -162,5 +198,6 @@ export {
   calculateExePrice,
   calculateMidPrice,
   createTrade,
-  buyTokens
+  buyTokens,
+  sellTokens
 };

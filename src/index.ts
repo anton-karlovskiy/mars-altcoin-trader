@@ -8,9 +8,10 @@ import {
 
 import {
   createToken,
-  calculateExePrice,
-  calculateMidPrice,
-  buyTokens
+  // calculateExePrice,
+  // calculateMidPrice,
+  // buyTokens,
+  sellTokens
 } from '@/utils/uniswap';
 
 const main = async () => {
@@ -22,13 +23,15 @@ const main = async () => {
     throw new Error('Invalid WETH!');
   }
 
-  const exePrice = await calculateExePrice(WETH, DAI, 0.1, 10);
-  console.log('Execution Price:', exePrice);
+  // const exePrice = await calculateExePrice(WETH, DAI, 0.1, 10);
+  // console.log('Execution Price:', exePrice);
+  // const midPrice = await calculateMidPrice(WETH, DAI, 10);
+  // console.log('Mid Price', midPrice);
 
-  const midPrice = await calculateMidPrice(WETH, DAI, 10);
-  console.log('Mid Price', midPrice);
+  // const txReceipt = await buyTokens(WETH, DAI, 0.01, 0.5);
+  // console.log(txReceipt);
 
-  const txReceipt = await buyTokens(WETH, DAI, 0.01, 0.5);
+  const txReceipt = await sellTokens(DAI, WETH, 471560, 50);
   console.log(txReceipt);
 };
 
