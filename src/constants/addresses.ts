@@ -11,7 +11,9 @@ const getUniswapV2Router02Address = (chainId: ChainId) => {
       uniswapV2Router02Address = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D';
       break;
     case ChainId.SEPOLIA:
-      uniswapV2Router02Address = '0xC532a74256D3Db42D0Bf7a0400fEFDbad7694008'; // RE: https://ethereum.stackexchange.com/questions/150654/uniswap-v2-router-factory-on-sepolia-test-network
+      // RE: https://ethereum.stackexchange.com/questions/150654/uniswap-v2-router-factory-on-sepolia-test-network
+      // RE: https://github.com/Uniswap/docs/issues/640
+      uniswapV2Router02Address = '0xC532a74256D3Db42D0Bf7a0400fEFDbad7694008';
       break;
     default:
       throw new Error('Invalid blockchain network!');

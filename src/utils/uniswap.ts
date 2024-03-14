@@ -33,7 +33,7 @@ const getDecimals = async (tokenAddress: string, chainId: ChainId) => {
   
     return Number(await tokenContract['decimals']());
   } catch (error) {
-    throw new Error(`Something went wrong: ${error}`);
+    throw new Error(`Thrown at "getDecimals": ${error}`);
   }
 };
 
@@ -45,7 +45,7 @@ const createToken = async (tokenAddress: string, chainId: ChainId, decimals: num
   
     return new Token(chainId, tokenAddress, decimals);
   } catch (error) {
-    throw new Error(`Something went wrong: ${error}`);
+    throw new Error(`Thrown at "createToken": ${error}`);
   }
 };
 
@@ -66,7 +66,7 @@ const createPair = async (tokenA: Token, tokenB: Token) => {
   
     return pair;
   } catch (error) {
-    throw new Error(`Something went wrong: ${error}`);
+    throw new Error(`Thrown at "createPair": ${error}`);
   }
 };
 
@@ -87,7 +87,7 @@ const calculateExePrice = async (baseToken: Token, quoteToken: Token, baseTokenA
 
     return trade.executionPrice.toSignificant(significantDigits);
   } catch (error) {
-    throw new Error(`Something went wrong: ${error}`);
+    throw new Error(`Thrown at "calculateExePrice": ${error}`);
   }
 };
 
@@ -100,7 +100,7 @@ const calculateMidPrice = async (baseToken: Token, quoteToken: Token, significan
 
     return route.midPrice.toSignificant(significantDigits);
   } catch (error) {
-    throw new Error(`Something went wrong: ${error}`);
+    throw new Error(`Thrown at "calculateMidPrice": ${error}`);
   }
 };
 
@@ -114,7 +114,7 @@ const createTrade = async (inputToken: Token, outputToken: Token, inputAmount: n
   
     return new Trade(route, CurrencyAmount.fromRawAmount(inputToken, rawInputAmount.toString()), TradeType.EXACT_INPUT);
   } catch (error) {
-    throw new Error(`Something went wrong: ${error}`);
+    throw new Error(`Thrown at "createTrade": ${error}`);
   }
 };
 
@@ -151,7 +151,7 @@ const buyTokens = async (inputToken: Token, outputToken: Token, inputAmount: num
 
     return await transaction.wait();
   } catch (error) {
-    throw new Error(`Something went wrong: ${error}`);
+    throw new Error(`Thrown at "buyTokens": ${error}`);
   }
 };
 
