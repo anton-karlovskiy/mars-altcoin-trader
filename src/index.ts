@@ -8,7 +8,7 @@ import {
   calculateExePrice,
   calculateMidPrice,
   buyTokens
-} from '@/utils/helpers';
+} from '@/utils/uniswap';
 
 const main = async () => {
   const targetChainId = ChainId.MAINNET;
