@@ -30,6 +30,6 @@
       "files": true
     },
     "include": ["src/**/*"], // Specify source directory for TypeScript files
-    "exclude": ["node_modules", "dist"]
+    "exclude": ["node_modules", "dist", ".env"]
   }
   
