@@ -47,8 +47,6 @@ const main = async () => {
     const to = signer.address; // Should be a check-summed recipient address
     const deadline = Math.floor(Date.now() / 1000) + 60 * 20 // 20 minutes from the current Unix time
     const value = trade.inputAmount.toExact() // Needs to be converted to e.g. decimal string
-    console.log('ray : ***** amountOutMin => ', amountOutMin);
-    console.log('ray : ***** value => ', value);
 
     const transaction = await uniswapV2Router02Contract.swapExactETHForTokens(
       parseUnits(amountOutMin, DAI.decimals),
@@ -63,8 +61,8 @@ const main = async () => {
       }
     );
 
-    await transaction.wait();
-    console.log("Swap successful!");
+    const transactionReceipt = await transaction.wait();
+    console.log(transactionReceipt);
   } catch (error) {
     throw new Error(`Something went wrong: ${error}`);
   }
