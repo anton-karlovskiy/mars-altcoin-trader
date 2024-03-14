@@ -44,5 +44,6 @@ e.g. UNI/ETH
 ### TODOs
 
 - [simple-uniswap-sdk](https://github.com/joshstevens19/simple-uniswap-sdk) vs. [v2-sdk](https://github.com/Uniswap/v2-sdk)
+- Fine-tuning e.g. `gasPrice` & `gasLimit`
 - Set up `ESLint`.
 - Set up `Prettier`.

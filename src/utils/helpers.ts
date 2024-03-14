@@ -3,13 +3,15 @@ import {
   Network,
   Contract,
   parseUnits,
-  Wallet
+  Wallet,
+  TransactionResponse
 } from 'ethers';
 import {
   ChainId,
   Token,
   CurrencyAmount,
-  TradeType
+  TradeType,
+  Percent
 } from '@uniswap/sdk-core';
 import {
   Pair,
@@ -18,11 +20,13 @@ import {
 } from '@uniswap/v2-sdk';
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json';
 import IUniswapV2ERC20 from '@uniswap/v2-core/build/IUniswapV2ERC20.json';
+import IUniswapV2Router02 from '@uniswap/v2-periphery/build/IUniswapV2Router02.json';
 
 import {
   INFURA_API_KEY,
   WALLET_ACCOUNT_PRIVATE_KEY
 } from '@/config/keys';
+import { UNISWAP_V2_ROUTER_02_ADDRESS } from '@/constants/addresses';
 
 const getProvider = (chainId: ChainId) => {
   if (!INFURA_API_KEY) {
@@ -153,6 +157,41 @@ const createTrade = async (inputToken: Token, outputToken: Token, inputAmount: n
   }
 };
 
+const buyTokens = async (inputToken: Token, outputToken: Token, inputAmount: number, slippage: number = 0.5) => {
+  try {
+    const trade = await createTrade(inputToken, outputToken, inputAmount);
+
+    const signer = getSigner(inputToken.chainId);
+    
+    const uniswapV2Router02Contract = new Contract(UNISWAP_V2_ROUTER_02_ADDRESS, IUniswapV2Router02.abi, signer);
+  
+    const slippageTolerance = new Percent(slippage * 100, '10000') // 50 bips, or 0.50%
+  
+    const amountOutMin = trade.minimumAmountOut(slippageTolerance).toExact(); // Needs to be converted to e.g. decimal string
+    const path = [inputToken.address, outputToken.address];
+    const to = signer.address; // Should be a check-summed recipient address
+    const deadline = Math.floor(Date.now() / 1000) + 60 * 20 // 20 minutes from the current Unix time
+    const value = trade.inputAmount.toExact() // Needs to be converted to e.g. decimal string
+
+    const transaction: TransactionResponse = await uniswapV2Router02Contract.swapExactETHForTokens(
+      parseUnits(amountOutMin, outputToken.decimals),
+      path,
+      to,
+      deadline,
+      {
+        value: parseUnits(value, inputToken.decimals),
+        // RE: https://github.com/ethers-io/ethers.js/discussions/3297#discussioncomment-4074779
+        gasPrice: parseUnits("500.0", "gwei"), // Optional: Gas price (in Gwei)
+        gasLimit: 210000, // Optional: Gas limit for the transaction
+      }
+    );
+
+    return await transaction.wait();
+  } catch (error) {
+    throw new Error(`Something went wrong: ${error}`);
+  }
+};
+
 export {
   getProvider,
   getDecimals,
@@ -161,5 +200,6 @@ export {
   calculateExePrice,
   calculateMidPrice,
   createTrade,
-  getSigner
+  getSigner,
+  buyTokens
 };
