@@ -19,7 +19,7 @@ import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json';
 import IUniswapV2ERC20 from '@uniswap/v2-core/build/IUniswapV2ERC20.json';
 import IUniswapV2Router02 from '@uniswap/v2-periphery/build/IUniswapV2Router02.json';
 
-import { UNISWAP_V2_ROUTER_02_ADDRESS } from '@/constants/addresses';
+import { getUniswapV2Router02Address } from '@/constants/addresses';
 import {
   getProvider,
   getSigner
@@ -122,9 +122,11 @@ const buyTokens = async (inputToken: Token, outputToken: Token, inputAmount: num
   try {
     const trade = await createTrade(inputToken, outputToken, inputAmount);
 
-    const signer = getSigner(inputToken.chainId);
+    const chainId = inputToken.chainId;
+
+    const signer = getSigner(chainId);
     
-    const uniswapV2Router02Contract = new Contract(UNISWAP_V2_ROUTER_02_ADDRESS, IUniswapV2Router02.abi, signer);
+    const uniswapV2Router02Contract = new Contract(getUniswapV2Router02Address(chainId), IUniswapV2Router02.abi, signer);
   
     const slippageTolerance = new Percent(slippage * 100, '10000') // 50 bips, or 0.50%
   

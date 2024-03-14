@@ -29,6 +29,10 @@ e.g. UNI/ETH
 - Routes consist of only one pair (direct pair).
 - Token/ETH pools
 
+## Test cases
+
+- Goerli: https://www.dextools.io/app/en/ethergoerli/pair-explorer/0xc8de1395a40496a380f86b90337011604d374249
+
 ### Open-source projects
 
 - [uniswap-price-feed](https://github.com/stefanmendoza/uniswap-price-feed)
