@@ -27,6 +27,8 @@ const getProvider = (chainId: ChainId) => {
     case ChainId.SEPOLIA:
       infuraEndpoint = `https://sepolia.infura.io/v3/${INFURA_API_KEY}`;
       break;
+    case ChainId.ARBITRUM_ONE:
+      infuraEndpoint = `https://arbitrum-mainnet.infura.io/v3/${INFURA_API_KEY}`;
     default:
       throw new Error('Invalid blockchain network!');
   }
