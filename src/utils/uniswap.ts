@@ -118,6 +118,7 @@ const createTrade = async (inputToken: Token, outputToken: Token, inputAmount: n
   }
 };
 
+// TODO: `swapExactETHForTokens` vs. `swapExactETHForTokensSupportingFeeOnTransferTokens` and `swapExactTokensForETH` vs. `swapExactTokensForETHSupportingFeeOnTransferTokens`
 enum UniswapV2Router02Methods {
   SwapExactETHForTokens = 'swapExactETHForTokens',
   SwapExactETHForTokensSupportingFeeOnTransferTokens = 'swapExactETHForTokensSupportingFeeOnTransferTokens',
@@ -147,7 +148,7 @@ const swap = async (inputToken: Token, outputToken: Token, inputAmount: number, 
       case UniswapV2Router02Methods.SwapExactETHForTokensSupportingFeeOnTransferTokens: // Buy
         const value = trade.inputAmount.toExact();
 
-        transaction = await uniswapV2Router02Contract.swapExactETHForTokens(
+        transaction = await uniswapV2Router02Contract.swapExactETHForTokensSupportingFeeOnTransferTokens(
           parseUnits(amountOutMin, outputToken.decimals),
           path,
           to,
@@ -163,7 +164,7 @@ const swap = async (inputToken: Token, outputToken: Token, inputAmount: number, 
       case UniswapV2Router02Methods.SwapExactTokensForETHSupportingFeeOnTransferTokens: // Sell
         const amountIn = trade.inputAmount.toExact();
 
-        transaction = await uniswapV2Router02Contract.swapExactTokensForETH(
+        transaction = await uniswapV2Router02Contract.swapExactTokensForETHSupportingFeeOnTransferTokens(
           parseUnits(amountIn, inputToken.decimals),
           parseUnits(amountOutMin, outputToken.decimals),
           path,
