@@ -1,7 +1,8 @@
 import {
   Contract,
   parseUnits,
-  TransactionResponse
+  TransactionResponse,
+  MaxUint256
 } from 'ethers';
 import {
   ChainId,
@@ -143,12 +144,12 @@ const swap = async (inputToken: Token, outputToken: Token, inputAmount: number, 
     const to = signer.address;
     const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from the current Unix time
 
-    let transaction: TransactionResponse;
+    let tx: TransactionResponse;
     switch (swapMethod) {
       case UniswapV2Router02Methods.SwapExactETHForTokensSupportingFeeOnTransferTokens: // Buy
         const value = trade.inputAmount.toExact();
 
-        transaction = await uniswapV2Router02Contract.swapExactETHForTokensSupportingFeeOnTransferTokens(
+        tx = await uniswapV2Router02Contract.swapExactETHForTokensSupportingFeeOnTransferTokens(
           parseUnits(amountOutMin, outputToken.decimals),
           path,
           to,
@@ -164,7 +165,7 @@ const swap = async (inputToken: Token, outputToken: Token, inputAmount: number, 
       case UniswapV2Router02Methods.SwapExactTokensForETHSupportingFeeOnTransferTokens: // Sell
         const amountIn = trade.inputAmount.toExact();
 
-        transaction = await uniswapV2Router02Contract.swapExactTokensForETHSupportingFeeOnTransferTokens(
+        tx = await uniswapV2Router02Contract.swapExactTokensForETHSupportingFeeOnTransferTokens(
           parseUnits(amountIn, inputToken.decimals),
           parseUnits(amountOutMin, outputToken.decimals),
           path,
@@ -180,7 +181,7 @@ const swap = async (inputToken: Token, outputToken: Token, inputAmount: number, 
         throw new Error('Invalid method!');
     }
       
-    return await transaction.wait();
+    return await tx.wait();
   } catch (error) {
     throw new Error(`Thrown at "swap": ${error}`);
   }
@@ -200,9 +201,30 @@ const buyTokens = async (inputToken: Token, outputToken: Token, inputAmount: num
   }
 };
 
+const approveTokenSpending = async (
+  token: Token,
+  spenderAddress: string,
+  approvalAmount = MaxUint256 // Allow maximum token spend (can be adjusted)
+) => {
+  const chainId = token.chainId;
+
+  const signer = getSigner(chainId);
+
+  const tokenContract = new Contract(token.address, IUniswapV2ERC20.abi, signer);
+
+  const currentAllowance: bigint = await tokenContract.allowance(signer.address, spenderAddress);
+
+  if (currentAllowance < approvalAmount) {
+    const tx = await tokenContract.approve(spenderAddress, approvalAmount);
+    console.log('Transaction hash at "approveTokenSpending":', tx.hash);
+    await tx.wait();
+  }
+};
+
 const sellTokens = async (inputToken: Token, outputToken: Token, inputAmount: number, slippage: number = 0.5) => {
   try {
-    // TODO: approve
+    approveTokenSpending(inputToken, getUniswapV2Router02Address(inputToken.chainId));
+
     swap(
       inputToken,
       outputToken,
