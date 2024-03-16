@@ -118,38 +118,82 @@ const createTrade = async (inputToken: Token, outputToken: Token, inputAmount: n
   }
 };
 
-const buyTokens = async (inputToken: Token, outputToken: Token, inputAmount: number, slippage: number = 0.5) => {
+enum UniswapV2Router02Methods {
+  SwapExactETHForTokens = 'swapExactETHForTokens',
+  SwapExactETHForTokensSupportingFeeOnTransferTokens = 'swapExactETHForTokensSupportingFeeOnTransferTokens',
+  SwapExactTokensForETH = 'swapExactTokensForETH',
+  SwapExactTokensForETHSupportingFeeOnTransferTokens = 'swapExactTokensForETHSupportingFeeOnTransferTokens'
+};
+
+const swap = async (inputToken: Token, outputToken: Token, inputAmount: number, slippage: number = 0.5, swapMethod: UniswapV2Router02Methods) => {
   try {
     const trade = await createTrade(inputToken, outputToken, inputAmount);
 
     const chainId = inputToken.chainId;
 
     const signer = getSigner(chainId);
-    
+
     const uniswapV2Router02Contract = new Contract(getUniswapV2Router02Address(chainId), IUniswapV2Router02.abi, signer);
-  
+
     const slippageTolerance = new Percent(slippage * 100, '10000'); // 50 bips, or 0.50%
-  
+
     const amountOutMin = trade.minimumAmountOut(slippageTolerance).toExact();
     const path = [inputToken.address, outputToken.address];
     const to = signer.address;
     const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from the current Unix time
-    const value = trade.inputAmount.toExact();
 
-    const transaction: TransactionResponse = await uniswapV2Router02Contract.swapExactETHForTokens(
-      parseUnits(amountOutMin, outputToken.decimals),
-      path,
-      to,
-      deadline,
-      {
-        value: parseUnits(value, inputToken.decimals),
-        // RE: https://github.com/ethers-io/ethers.js/discussions/3297#discussioncomment-4074779
-        gasPrice: parseUnits("500.0", "gwei"), // Optional: Gas price (in Gwei)
-        gasLimit: 210000, // Optional: Gas limit for the transaction
-      }
-    );
+    let transaction: TransactionResponse;
+    switch (swapMethod) {
+      case UniswapV2Router02Methods.SwapExactETHForTokensSupportingFeeOnTransferTokens: // Buy
+        const value = trade.inputAmount.toExact();
 
+        transaction = await uniswapV2Router02Contract.swapExactETHForTokens(
+          parseUnits(amountOutMin, outputToken.decimals),
+          path,
+          to,
+          deadline,
+          {
+            value: parseUnits(value, inputToken.decimals),
+            // RE: https://github.com/ethers-io/ethers.js/discussions/3297#discussioncomment-4074779
+            gasPrice: parseUnits("500.0", "gwei"), // Optional: Gas price (in Gwei)
+            gasLimit: 210000, // Optional: Gas limit for the transaction
+          }
+        );
+        break;
+      case UniswapV2Router02Methods.SwapExactTokensForETHSupportingFeeOnTransferTokens: // Sell
+        const amountIn = trade.inputAmount.toExact();
+
+        transaction = await uniswapV2Router02Contract.swapExactTokensForETH(
+          parseUnits(amountIn, inputToken.decimals),
+          parseUnits(amountOutMin, outputToken.decimals),
+          path,
+          to,
+          deadline,
+          {
+            gasPrice: parseUnits("500.0", "gwei"),
+            gasLimit: 210000,
+          }
+        );
+        break;
+      default:
+        throw new Error('Invalid method!');
+    }
+      
     return await transaction.wait();
+  } catch (error) {
+    throw new Error(`Thrown at "swap": ${error}`);
+  }
+};
+
+const buyTokens = async (inputToken: Token, outputToken: Token, inputAmount: number, slippage: number = 0.5) => {
+  try {
+    swap(
+      inputToken,
+      outputToken,
+      inputAmount,
+      slippage,
+      UniswapV2Router02Methods.SwapExactETHForTokensSupportingFeeOnTransferTokens
+    );
   } catch (error) {
     throw new Error(`Thrown at "buyTokens": ${error}`);
   }
@@ -157,35 +201,14 @@ const buyTokens = async (inputToken: Token, outputToken: Token, inputAmount: num
 
 const sellTokens = async (inputToken: Token, outputToken: Token, inputAmount: number, slippage: number = 0.5) => {
   try {
-    const trade = await createTrade(inputToken, outputToken, inputAmount);
-
-    const chainId = inputToken.chainId;
-
-    const signer = getSigner(chainId);
-    
-    const uniswapV2Router02Contract = new Contract(getUniswapV2Router02Address(chainId), IUniswapV2Router02.abi, signer);
-  
-    const slippageTolerance = new Percent(slippage * 100, '10000'); // 50 bips, or 0.50%
-  
-    const amountOutMin = trade.minimumAmountOut(slippageTolerance).toExact();
-    const path = [inputToken.address, outputToken.address];
-    const to = signer.address;
-    const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from the current Unix time
-    const amountIn = trade.inputAmount.toExact();
-
-    const transaction: TransactionResponse = await uniswapV2Router02Contract.swapExactTokensForETH(
-      parseUnits(amountIn, inputToken.decimals),
-      parseUnits(amountOutMin, outputToken.decimals),
-      path,
-      to,
-      deadline,
-      {
-        gasPrice: parseUnits("500.0", "gwei"),
-        gasLimit: 210000,
-      }
+    // TODO: approve
+    swap(
+      inputToken,
+      outputToken,
+      inputAmount,
+      slippage,
+      UniswapV2Router02Methods.SwapExactTokensForETHSupportingFeeOnTransferTokens
     );
-
-    return await transaction.wait();
   } catch (error) {
     throw new Error(`Thrown at "sellTokens": ${error}`);
   }

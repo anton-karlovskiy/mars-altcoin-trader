@@ -33,7 +33,7 @@ e.g. UNI/ETH
 
 - Goerli: https://www.dextools.io/app/en/ethergoerli/pair-explorer/0xc8de1395a40496a380f86b90337011604d374249
 
-### Open-source projects
+### Relevant open-source projects
 
 - [uniswap-price-feed](https://github.com/stefanmendoza/uniswap-price-feed)
 - [Dex-aggregator](https://github.com/kaymen99/Dex-aggregator)
@@ -45,9 +45,18 @@ e.g. UNI/ETH
 
 - [Decentralized-Exchange-Trading-Scripts](https://github.com/henrytirla/Decentralized-Exchange-Trading-Scripts)
 
+### Relevant reads
+
+- [6 of The Best Crypto Trading Bots Strategies](https://blockgeeks.com/guides/6-of-the-best-crypto-trading-bots-strategies-updated-list/#_Tool_2_DeFi_Derivatives)
+
 ### TODOs
+
+#### Feature-related
 
 - [simple-uniswap-sdk](https://github.com/joshstevens19/simple-uniswap-sdk) vs. [v2-sdk](https://github.com/Uniswap/v2-sdk)
 - Fine-tuning e.g. `gasPrice` & `gasLimit`
+
+#### Code-related
+
 - Set up `ESLint`.
 - Set up `Prettier`.
