@@ -157,8 +157,8 @@ const swap = async (inputToken: Token, outputToken: Token, inputAmount: number, 
           {
             value: parseUnits(value, inputToken.decimals),
             // RE: https://github.com/ethers-io/ethers.js/discussions/3297#discussioncomment-4074779
-            gasPrice: parseUnits("500.0", "gwei"), // Optional: Gas price (in Gwei)
-            gasLimit: 210000, // Optional: Gas limit for the transaction
+            // gasPrice: parseUnits("500.0", "gwei"), // Optional: Gas price (in Gwei)
+            // gasLimit: 210000, // Optional: Gas limit for the transaction
           }
         );
         break;
@@ -172,15 +172,15 @@ const swap = async (inputToken: Token, outputToken: Token, inputAmount: number, 
           to,
           deadline,
           {
-            gasPrice: parseUnits("500.0", "gwei"),
-            gasLimit: 210000,
+            // gasPrice: parseUnits("500.0", "gwei"),
+            // gasLimit: 210000,
           }
         );
         break;
       default:
         throw new Error('Invalid method!');
     }
-      
+
     return await tx.wait();
   } catch (error) {
     throw new Error(`Thrown at "swap": ${error}`);
@@ -189,7 +189,7 @@ const swap = async (inputToken: Token, outputToken: Token, inputAmount: number, 
 
 const buyTokens = async (inputToken: Token, outputToken: Token, inputAmount: number, slippage: number = 0.5) => {
   try {
-    swap(
+    return await swap(
       inputToken,
       outputToken,
       inputAmount,
@@ -206,26 +206,30 @@ const approveTokenSpending = async (
   spenderAddress: string,
   approvalAmount = MaxUint256 // Allow maximum token spend (can be adjusted)
 ) => {
-  const chainId = token.chainId;
-
-  const signer = getSigner(chainId);
-
-  const tokenContract = new Contract(token.address, IUniswapV2ERC20.abi, signer);
-
-  const currentAllowance: bigint = await tokenContract.allowance(signer.address, spenderAddress);
-
-  if (currentAllowance < approvalAmount) {
-    const tx = await tokenContract.approve(spenderAddress, approvalAmount);
-    console.log('Transaction hash at "approveTokenSpending":', tx.hash);
-    await tx.wait();
+  try {
+    const chainId = token.chainId;
+  
+    const signer = getSigner(chainId);
+  
+    const tokenContract = new Contract(token.address, IUniswapV2ERC20.abi, signer);
+  
+    const currentAllowance: bigint = await tokenContract.allowance(signer.address, spenderAddress);
+  
+    if (currentAllowance < approvalAmount) {
+      const tx = await tokenContract.approve(spenderAddress, approvalAmount);
+      console.log('Approve tx hash at "approveTokenSpending":', tx.hash);
+      await tx.wait();
+    }
+  } catch (error) {
+    throw new Error(`Thrown at "approveTokenSpending": ${error}`);
   }
 };
 
 const sellTokens = async (inputToken: Token, outputToken: Token, inputAmount: number, slippage: number = 0.5) => {
   try {
-    approveTokenSpending(inputToken, getUniswapV2Router02Address(inputToken.chainId));
+    await approveTokenSpending(inputToken, getUniswapV2Router02Address(inputToken.chainId));
 
-    swap(
+    return await swap(
       inputToken,
       outputToken,
       inputAmount,

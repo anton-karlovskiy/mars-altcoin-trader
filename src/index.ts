@@ -10,14 +10,14 @@ import {
   createToken,
   // calculateExePrice,
   // calculateMidPrice,
-  // buyTokens,
+  buyTokens,
   sellTokens
 } from '@/utils/uniswap';
 
 const main = async () => {
-  const targetChainId = ChainId.GOERLI;
+  const targetChainId = ChainId.MAINNET;
 
-  const DAI = await createToken('0x3ee54fa122f884ab89c39b2d7b1a0c40e426a9a9', targetChainId);
+  const DAI = await createToken('0x6b175474e89094c44da98b954eedeac495271d0f', targetChainId);
   const WETH = WETH9[targetChainId];
   if (!WETH) {
     throw new Error('Invalid WETH!');
@@ -28,11 +28,11 @@ const main = async () => {
   // const midPrice = await calculateMidPrice(WETH, DAI, 10);
   // console.log('Mid Price', midPrice);
 
-  // const txReceipt = await buyTokens(WETH, DAI, 0.01, 0.5);
-  // console.log(txReceipt);
+  // const txReceipt = await buyTokens(WETH, DAI, 0.001, 0.5);
+  // console.log('TX receipt:', txReceipt);
 
-  const txReceipt = await sellTokens(DAI, WETH, 471560, 50);
-  console.log(txReceipt);
+  const txReceipt = await sellTokens(DAI, WETH, 0.4, 0.5);
+  console.log('TX receipt:', txReceipt);
 };
 
 main();

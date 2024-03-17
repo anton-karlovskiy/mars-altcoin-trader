@@ -55,8 +55,11 @@ e.g. UNI/ETH
 
 - [simple-uniswap-sdk](https://github.com/joshstevens19/simple-uniswap-sdk) vs. [v2-sdk](https://github.com/Uniswap/v2-sdk)
 - Fine-tuning e.g. `gasPrice` & `gasLimit`
+  * https://stackoverflow.com/questions/70622074/set-gas-limit-on-contract-method-in-ethers-js
+  * https://github.com/ethers-io/ethers.js/issues/40
 
 #### Code-related
 
 - Set up `ESLint`.
 - Set up `Prettier`.
+- Add logs.
