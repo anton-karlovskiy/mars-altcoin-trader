@@ -156,9 +156,8 @@ const swap = async (inputToken: Token, outputToken: Token, inputAmount: number, 
           deadline,
           {
             value: parseUnits(value, inputToken.decimals),
-            // RE: https://github.com/ethers-io/ethers.js/discussions/3297#discussioncomment-4074779
-            // gasPrice: parseUnits("500.0", "gwei"), // Optional: Gas price (in Gwei)
-            // gasLimit: 210000, // Optional: Gas limit for the transaction
+            // gasPrice: parseUnits("50.0", "gwei"), // Optional: Gas price (in Gwei)
+            // gasLimit: 21000, // Optional: Gas limit for the transaction
           }
         );
         break;
@@ -172,8 +171,8 @@ const swap = async (inputToken: Token, outputToken: Token, inputAmount: number, 
           to,
           deadline,
           {
-            // gasPrice: parseUnits("500.0", "gwei"),
-            // gasLimit: 210000,
+            // gasPrice: parseUnits("50.0", "gwei"),
+            // gasLimit: 21000,
           }
         );
         break;
