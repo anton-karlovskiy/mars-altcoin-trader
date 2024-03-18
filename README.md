@@ -3,8 +3,8 @@
 ### Features
 
 - Scripts
-  * getBuyInfo(dexType, pairAddress, amount): { amount, slippage, price }
-  * getSellInfo(dexType, pairAddress, amount): { amount, slippage, price }
+  * getBuyInfo(dexType, pairAddress, inputAmount): { outputAmount, priceImpact, price }
+  * getSellInfo(dexType, pairAddress, inputAmount): { outputAmount, priceImpact, price }
   * buy(dexType, pairAddress, amount, privateKey): { success, buyAmount, sellAmount, txId }
   * sell(dexType, pairAddress, amount, privateKey): { success, buyAmount, sellAmount, txId }
 

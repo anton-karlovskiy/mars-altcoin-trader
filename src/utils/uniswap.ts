@@ -78,7 +78,7 @@ const createPair = async (tokenA: Token, tokenB: Token) => {
 // RE: https://docs.uniswap.org/sdk/v2/guides/pricing#direct
 
 // Execution Price
-const calculateExePrice = async (baseToken: Token, quoteToken: Token, baseTokenAmount = 1, significantDigits = 6) => {
+const calculateExecutionPrice = async (baseToken: Token, quoteToken: Token, baseTokenAmount = 1, significantDigits = 6) => {
   try {
     const pair = await createPair(quoteToken, baseToken);
 
@@ -240,12 +240,27 @@ const sellTokens = async (inputToken: Token, outputToken: Token, inputAmount: nu
   }
 };
 
-const getBuyInfo = async (inputToken: Token, outputToken: Token, inputAmount: number) => {
+const getBuyInfo = async (inputToken: Token, outputToken: Token, inputAmount: number, priceSignificantDigits = 6, priceImpactDecimalPlaces = 2) => {
   try {
-    const exePrice = await calculateExePrice(inputToken, outputToken, inputAmount, 10);
-    console.log('Execution Price:', exePrice);
-    const midPrice = await calculateMidPrice(inputToken, outputToken, 10);
-    console.log('Mid Price', midPrice);
+    const trade = await createTrade(inputToken, outputToken, inputAmount);
+
+    // RE: https://docs.uniswap.org/sdk/core/reference/classes/CurrencyAmount
+    // RE: https://docs.uniswap.org/sdk/v2/reference/trade#outputamount
+    const outputAmount = trade.outputAmount.toExact();
+
+    // RE: https://docs.uniswap.org/sdk/v2/reference/trade#priceimpact
+    const priceImpact = trade.priceImpact.toFixed(priceImpactDecimalPlaces);
+    
+    const executionPrice = trade.executionPrice.toSignificant(priceSignificantDigits);
+
+    const midPrice = await calculateMidPrice(inputToken, outputToken, priceSignificantDigits);
+
+    return {
+      outputAmount,
+      priceImpact,
+      executionPrice,
+      midPrice
+    };
   } catch (error) {
     throw new Error(`Thrown at "getBuyInfo": ${error}`);
   }
@@ -255,7 +270,7 @@ export {
   getDecimals,
   createPair,
   createToken,
-  calculateExePrice,
+  calculateExecutionPrice,
   calculateMidPrice,
   createTrade,
   buyTokens,
