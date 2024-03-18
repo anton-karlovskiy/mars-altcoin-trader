@@ -8,7 +8,7 @@
   * buy(dexType, pairAddress, amount, privateKey): { success, buyAmount, sellAmount, txId }
   * sell(dexType, pairAddress, amount, privateKey): { success, buyAmount, sellAmount, txId }
 
-- Supported dexes
+- Supported DEXes
   * Uniswap v2
   * Uniswap v3
   * Pancakeswap

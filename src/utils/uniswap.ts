@@ -240,6 +240,17 @@ const sellTokens = async (inputToken: Token, outputToken: Token, inputAmount: nu
   }
 };
 
+const getBuyInfo = async (inputToken: Token, outputToken: Token, inputAmount: number) => {
+  try {
+    const exePrice = await calculateExePrice(inputToken, outputToken, inputAmount, 10);
+    console.log('Execution Price:', exePrice);
+    const midPrice = await calculateMidPrice(inputToken, outputToken, 10);
+    console.log('Mid Price', midPrice);
+  } catch (error) {
+    throw new Error(`Thrown at "getBuyInfo": ${error}`);
+  }
+};
+
 export {
   getDecimals,
   createPair,
@@ -248,5 +259,6 @@ export {
   calculateMidPrice,
   createTrade,
   buyTokens,
-  sellTokens
+  sellTokens,
+  getBuyInfo
 };
