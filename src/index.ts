@@ -10,7 +10,7 @@ import {
   createToken,
   buyTokens,
   sellTokens,
-  getBuyInfo
+  getTradeInfo
 } from '@/utils/uniswap';
 
 const main = async () => {
@@ -22,8 +22,8 @@ const main = async () => {
     throw new Error('Invalid WETH!');
   }
 
-  const buyInfo = await getBuyInfo(WETH, DAI, 1000);
-  console.log('buyInfo:', buyInfo);
+  const tradeInfo = await getTradeInfo(WETH, DAI, 1000);
+  console.log('tradeInfo:', tradeInfo);
 
   // const txReceipt = await buyTokens(WETH, DAI, 0.001, 0.5);
   // console.log('TX receipt:', txReceipt);

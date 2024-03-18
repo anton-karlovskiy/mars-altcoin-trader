@@ -240,7 +240,7 @@ const sellTokens = async (inputToken: Token, outputToken: Token, inputAmount: nu
   }
 };
 
-const getBuyInfo = async (inputToken: Token, outputToken: Token, inputAmount: number, priceSignificantDigits = 6, priceImpactDecimalPlaces = 2) => {
+const getTradeInfo = async (inputToken: Token, outputToken: Token, inputAmount: number, priceSignificantDigits = 6, priceImpactDecimalPlaces = 2) => {
   try {
     const trade = await createTrade(inputToken, outputToken, inputAmount);
 
@@ -262,7 +262,7 @@ const getBuyInfo = async (inputToken: Token, outputToken: Token, inputAmount: nu
       midPrice
     };
   } catch (error) {
-    throw new Error(`Thrown at "getBuyInfo": ${error}`);
+    throw new Error(`Thrown at "getTradeInfo": ${error}`);
   }
 };
 
@@ -275,5 +275,5 @@ export {
   createTrade,
   buyTokens,
   sellTokens,
-  getBuyInfo
+  getTradeInfo
 };
