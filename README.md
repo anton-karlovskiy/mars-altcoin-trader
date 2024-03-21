@@ -43,6 +43,12 @@ e.g. UNI/ETH
 ### Relevant reads
 
 - [6 of The Best Crypto Trading Bots Strategies](https://blockgeeks.com/guides/6-of-the-best-crypto-trading-bots-strategies-updated-list/#_Tool_2_DeFi_Derivatives)
+- [Uniswap API: Get Pools Data, Tokens and Create Charts](https://bitquery.io/blog/uniswap-pool-api)
+- [Introducing Uniswap v3](https://blog.uniswap.org/uniswap-v3)
+- [Uniswap V3: Maximising Capital Efficiency](https://zerocap.com/insights/research-lab/uniswap-v3-capital-efficiency)
+- [Introduction to Uniswap V3](https://uniswapv3book.com/milestone_0/uniswap-v3.html)
+- [Uniswap V3: Maximising Capital Efficiency](https://zerocap.com/insights/research-lab/uniswap-v3-capital-efficiency)
+- [Uniswap v3: Liquidity and Invariants 101](https://medium.com/blockapex/uniswap-v3-liquidity-and-invariants-101-cb956816d62d)
 
 ### TODOs
 
