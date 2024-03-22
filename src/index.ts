@@ -12,6 +12,9 @@ import {
   getTradeInfo
 } from '@/utils/uniswap-v2';
 import { createToken } from '@/utils/helpers';
+// ray test touch <
+import { quote } from '@/utils/uniswap-v3';
+// ray test touch >
 
 const main = async () => {
   const targetChainId = ChainId.MAINNET;
@@ -30,6 +33,11 @@ const main = async () => {
 
   // const txReceipt = await sellTokens(DAI, WETH, 0.4, 0.5);
   // console.log('TX receipt:', txReceipt);
+
+  // ray test touch <
+  const test = await quote();
+  console.log('ray : ***** test => ', test);
+  // ray test touch >
 };
 
 main();
