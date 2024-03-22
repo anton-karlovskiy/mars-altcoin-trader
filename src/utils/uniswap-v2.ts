@@ -240,11 +240,15 @@ const sellTokens = async (inputToken: Token, outputToken: Token, inputAmount: nu
   }
 };
 
-// ray test touch <
-// TODO: "We use a batch Promise call. This approach queries state data concurrently, rather than sequentially, to minimize the chance of fetching out of sync data that may be returned if sequential queries are executed over the span of two blocks"
 const getTradeInfo = async (inputToken: Token, outputToken: Token, inputAmount: number, priceSignificantDigits = 6, priceImpactDecimalPlaces = 2) => {
   try {
-    const trade = await createTrade(inputToken, outputToken, inputAmount);
+    const [
+      trade,
+      midPrice
+    ] = await Promise.all([
+      createTrade(inputToken, outputToken, inputAmount),
+      calculateMidPrice(inputToken, outputToken, priceSignificantDigits)
+    ]);
 
     // RE: https://docs.uniswap.org/sdk/core/reference/classes/CurrencyAmount
     // RE: https://docs.uniswap.org/sdk/v2/reference/trade#outputamount
@@ -254,8 +258,6 @@ const getTradeInfo = async (inputToken: Token, outputToken: Token, inputAmount: 
     const priceImpact = trade.priceImpact.toFixed(priceImpactDecimalPlaces);
     
     const executionPrice = trade.executionPrice.toSignificant(priceSignificantDigits);
-
-    const midPrice = await calculateMidPrice(inputToken, outputToken, priceSignificantDigits);
 
     return {
       outputAmount,
@@ -267,7 +269,6 @@ const getTradeInfo = async (inputToken: Token, outputToken: Token, inputAmount: 
     throw new Error(`Thrown at "getTradeInfo": ${error}`);
   }
 };
-// ray test touch >
 
 export {
   getDecimals,
