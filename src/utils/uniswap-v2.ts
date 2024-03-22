@@ -25,6 +25,7 @@ import {
   getProvider,
   getSigner
 } from '@/utils/web3';
+import { fromReadableAmount } from '@/utils/conversion';
 
 const getDecimals = async (tokenAddress: string, chainId: ChainId) => {
   try {
@@ -83,7 +84,7 @@ const calculateExecutionPrice = async (baseToken: Token, quoteToken: Token, base
     const pair = await createPair(quoteToken, baseToken);
 
     const route = new Route([pair], baseToken, quoteToken); // Only the direct pair case is considered.
-    const baseTokenRawAmount = parseUnits(baseTokenAmount.toString(), baseToken.decimals);
+    const baseTokenRawAmount = fromReadableAmount(baseTokenAmount, baseToken.decimals);
     const trade = new Trade(route, CurrencyAmount.fromRawAmount(baseToken, baseTokenRawAmount.toString()), TradeType.EXACT_INPUT);
 
     return trade.executionPrice.toSignificant(significantDigits);
@@ -111,7 +112,7 @@ const createTrade = async (inputToken: Token, outputToken: Token, inputAmount: n
   
     const route = new Route([pair], inputToken, outputToken);
   
-    const rawInputAmount = parseUnits(inputAmount.toString(), inputToken.decimals);
+    const rawInputAmount = fromReadableAmount(inputAmount, inputToken.decimals);
   
     return new Trade(route, CurrencyAmount.fromRawAmount(inputToken, rawInputAmount.toString()), TradeType.EXACT_INPUT);
   } catch (error) {
