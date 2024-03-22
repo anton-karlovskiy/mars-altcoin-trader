@@ -19,13 +19,13 @@ const getDecimals = async (tokenAddress: string, chainId: ChainId) => {
   }
 };
 
-const createToken = async (tokenAddress: string, chainId: ChainId, decimals: number | undefined = undefined) => {
+const createToken = async (address: string, chainId: ChainId, decimals: number | undefined = undefined, symbol = '', name = '') => {
   try {
     if (!decimals) {
-      decimals = await getDecimals(tokenAddress, chainId);
+      decimals = await getDecimals(address, chainId);
     }
   
-    return new Token(chainId, tokenAddress, decimals);
+    return new Token(chainId, address, decimals, symbol, name);
   } catch (error) {
     throw new Error(`Thrown at "createToken": ${error}`);
   }
