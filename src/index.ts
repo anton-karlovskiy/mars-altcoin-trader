@@ -11,7 +11,7 @@ import {
   buyTokens,
   sellTokens,
   getTradeInfo
-} from '@/utils/uniswap';
+} from '@/utils/uniswap-v2';
 
 const main = async () => {
   const targetChainId = ChainId.MAINNET;
