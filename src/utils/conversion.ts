@@ -3,8 +3,6 @@ import {
   formatUnits
 } from 'ethers';
 
-const READABLE_FORM_LEN = 4;
-
 function fromReadableAmount(
   amount: number,
   decimals: number
@@ -13,7 +11,7 @@ function fromReadableAmount(
 }
 
 function toReadableAmount(rawAmount: number, decimals: number): string {
-  return formatUnits(rawAmount, decimals).slice(0, READABLE_FORM_LEN);
+  return formatUnits(rawAmount, decimals);
 }
 
 export {

@@ -36,7 +36,7 @@ const main = async () => {
   // const txReceipt = await sellTokens(DAI, WETH, 0.4, 0.5);
   // console.log('TX receipt:', txReceipt);
 
-  const quote = await getQuote(USDC_TOKEN, WETH_TOKEN, 1000);
+  const quote = await getQuote(WETH_TOKEN, USDC_TOKEN, 1); // TODO: quote for WETH -> USDC is misleading
   console.log('quote:', quote);
 };
 
