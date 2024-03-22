@@ -5,7 +5,6 @@ import {
   MaxUint256
 } from 'ethers';
 import {
-  ChainId,
   Token,
   CurrencyAmount,
   TradeType,
@@ -26,30 +25,6 @@ import {
   getSigner
 } from '@/utils/web3';
 import { fromReadableAmount } from '@/utils/conversion';
-
-const getDecimals = async (tokenAddress: string, chainId: ChainId) => {
-  try {
-    const provider = getProvider(chainId);
-
-    const tokenContract = new Contract(tokenAddress, IUniswapV2ERC20.abi, provider);
-  
-    return Number(await tokenContract['decimals']());
-  } catch (error) {
-    throw new Error(`Thrown at "getDecimals": ${error}`);
-  }
-};
-
-const createToken = async (tokenAddress: string, chainId: ChainId, decimals: number | undefined = undefined) => {
-  try {
-    if (!decimals) {
-      decimals = await getDecimals(tokenAddress, chainId);
-    }
-  
-    return new Token(chainId, tokenAddress, decimals);
-  } catch (error) {
-    throw new Error(`Thrown at "createToken": ${error}`);
-  }
-};
 
 const createPair = async (tokenA: Token, tokenB: Token) => {
   try {
@@ -272,9 +247,7 @@ const getTradeInfo = async (inputToken: Token, outputToken: Token, inputAmount: 
 };
 
 export {
-  getDecimals,
   createPair,
-  createToken,
   calculateExecutionPrice,
   calculateMidPrice,
   createTrade,

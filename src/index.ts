@@ -7,11 +7,11 @@ import {
 } from '@uniswap/sdk-core';
 
 import {
-  createToken,
   buyTokens,
   sellTokens,
   getTradeInfo
 } from '@/utils/uniswap-v2';
+import { createToken } from '@/utils/helpers';
 
 const main = async () => {
   const targetChainId = ChainId.MAINNET;
