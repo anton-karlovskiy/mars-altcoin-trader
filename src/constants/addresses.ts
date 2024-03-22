@@ -1,27 +1,44 @@
 import { ChainId } from '@uniswap/sdk-core';
 
-const getUniswapV2Router02Address = (chainId: ChainId) => {
-  let uniswapV2Router02Address: string;
-
+// RE: https://docs.uniswap.org/contracts/v2/reference/smart-contracts/v2-deployments
+const getUniswapV2Router02ContractAddress = (chainId: ChainId) => {
   switch (chainId) {
     case ChainId.MAINNET:
-      uniswapV2Router02Address = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D';
-      break;
     case ChainId.GOERLI:
-      uniswapV2Router02Address = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D';
-      break;
+      return '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D';
     case ChainId.SEPOLIA:
       // RE: https://ethereum.stackexchange.com/questions/150654/uniswap-v2-router-factory-on-sepolia-test-network
       // RE: https://github.com/Uniswap/docs/issues/640
-      uniswapV2Router02Address = '0x3bFA4769FB09eefC5a80d6E87c3B9C650f7Ae48E';
-      break;
+      return '0x3bFA4769FB09eefC5a80d6E87c3B9C650f7Ae48E';
     default:
-      throw new Error('Invalid blockchain network!');
+      throw new Error(`Uniswap V2 router02 contract address is not set on this chain: ${chainId}!`);
   }
+};
 
-  return uniswapV2Router02Address;
+// RE: https://docs.uniswap.org/contracts/v3/reference/deployments
+
+const getUniswapV3PoolFactoryContractAddress = (chainId: ChainId) => {
+  switch (chainId) {
+    case ChainId.MAINNET:
+    case ChainId.GOERLI:
+      return '0x1F98431c8aD98523631AE4a59f267346ea31F984';
+    default:
+      throw new Error(`Uniswap V3 pool factory contract address is not set on this chain: ${chainId}!`);
+  }
+};
+
+const getUniswapV3QuoterContractAddress = (chainId: ChainId) => {
+  switch (chainId) {
+    case ChainId.MAINNET:
+    case ChainId.GOERLI:
+      return '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6';
+    default:
+      throw new Error(`Uniswap V3 quoter contract address is not set on this chain: ${chainId}!`);
+  }
 };
 
 export {
-  getUniswapV2Router02Address
+  getUniswapV2Router02ContractAddress,
+  getUniswapV3PoolFactoryContractAddress,
+  getUniswapV3QuoterContractAddress
 };

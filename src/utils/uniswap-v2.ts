@@ -20,7 +20,7 @@ import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json';
 import IUniswapV2ERC20 from '@uniswap/v2-core/build/IUniswapV2ERC20.json';
 import IUniswapV2Router02 from '@uniswap/v2-periphery/build/IUniswapV2Router02.json';
 
-import { getUniswapV2Router02Address } from '@/constants/addresses';
+import { getUniswapV2Router02ContractAddress } from '@/constants/addresses';
 import {
   getProvider,
   getSigner
@@ -136,7 +136,7 @@ const swap = async (inputToken: Token, outputToken: Token, inputAmount: number, 
 
     const signer = getSigner(chainId);
 
-    const uniswapV2Router02Contract = new Contract(getUniswapV2Router02Address(chainId), IUniswapV2Router02.abi, signer);
+    const uniswapV2Router02Contract = new Contract(getUniswapV2Router02ContractAddress(chainId), IUniswapV2Router02.abi, signer);
 
     const slippageTolerance = new Percent(slippage * 100, '10000'); // 50 bips, or 0.50%
 
@@ -227,7 +227,7 @@ const approveTokenSpending = async (
 
 const sellTokens = async (inputToken: Token, outputToken: Token, inputAmount: number, slippage: number = 0.5) => {
   try {
-    await approveTokenSpending(inputToken, getUniswapV2Router02Address(inputToken.chainId));
+    await approveTokenSpending(inputToken, getUniswapV2Router02ContractAddress(inputToken.chainId));
 
     return await swap(
       inputToken,
