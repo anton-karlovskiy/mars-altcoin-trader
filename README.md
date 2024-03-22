@@ -39,6 +39,7 @@ e.g. UNI/ETH
 - [v2-sdk](https://github.com/Uniswap/v2-sdk)
 
 - [Decentralized-Exchange-Trading-Scripts](https://github.com/henrytirla/Decentralized-Exchange-Trading-Scripts)
+- [ethereum-abi-types-generator](https://github.com/joshstevens19/ethereum-abi-types-generator)
 
 ### Relevant reads
 
