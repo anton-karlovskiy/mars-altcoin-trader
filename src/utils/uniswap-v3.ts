@@ -49,6 +49,7 @@ const getPoolConstants = async (inputToken: Token, outputToken: Token, poolFee =
   };
 };
 
+// RE: https://docs.uniswap.org/sdk/v3/guides/swaps/quoting
 const getQuote = async (inputToken: Token, outputToken: Token, inputAmount: number): Promise<string> => {
   const chainId = inputToken.chainId;
 
