@@ -17,6 +17,7 @@ import {
   getUniswapV3PoolFactoryContractAddress
 } from '@/constants/addresses';
 
+// TODO: add try/catch
 const getPoolConstants = async (inputToken: Token, outputToken: Token, poolFee = FeeAmount.MEDIUM): Promise<{
   token0: string
   token1: string
@@ -49,6 +50,7 @@ const getPoolConstants = async (inputToken: Token, outputToken: Token, poolFee =
   };
 };
 
+// TODO: add try/catch
 // RE: https://docs.uniswap.org/sdk/v3/guides/swaps/quoting
 const getQuote = async (inputToken: Token, outputToken: Token, inputAmount: number): Promise<string> => {
   const chainId = inputToken.chainId;
@@ -77,6 +79,69 @@ const getQuote = async (inputToken: Token, outputToken: Token, inputAmount: numb
   return toReadableAmount(quotedAmountOut, outputToken.decimals);
 };
 
+// ray test touch <
+interface PoolInfo {
+  token0: string
+  token1: string
+  fee: number
+  tickSpacing: number
+  sqrtPriceX96: bigint
+  liquidity: bigint
+  tick: number
+}
+
+// TODO: add try/catch
+const getPoolInfo = async (inputToken: Token, outputToken: Token, poolFee = FeeAmount.MEDIUM): Promise<PoolInfo> => {
+  const chainId = inputToken.chainId;
+
+  const provider = getProvider(chainId);
+  if (!provider) {
+    throw new Error('No provider');
+  }
+
+  const currentPoolAddress = computePoolAddress({
+    factoryAddress: getUniswapV3PoolFactoryContractAddress(chainId),
+    tokenA: inputToken,
+    tokenB: outputToken,
+    fee: poolFee
+  });
+
+  const poolContract = new Contract(
+    currentPoolAddress,
+    IUniswapV3PoolABI.abi,
+    provider
+  );
+
+  const [
+    token0,
+    token1,
+    fee,
+    tickSpacing,
+    liquidity,
+    slot0
+  ] =
+    await Promise.all([
+      poolContract.token0(),
+      poolContract.token1(),
+      poolContract.fee(),
+      poolContract.tickSpacing(),
+      poolContract.liquidity(),
+      poolContract.slot0(),
+    ]);
+
+  return {
+    token0,
+    token1,
+    fee,
+    tickSpacing,
+    liquidity,
+    sqrtPriceX96: slot0[0],
+    tick: slot0[1]
+  };
+};
+// ray test touch >
+
 export {
-  getQuote
+  getQuote,
+  getPoolInfo
 };

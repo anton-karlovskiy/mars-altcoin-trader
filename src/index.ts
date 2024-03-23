@@ -16,7 +16,10 @@ import {
   USDC_TOKEN,
   WETH_TOKEN
 } from '@/constants/tokens';
-import { getQuote } from '@/utils/uniswap-v3';
+import {
+  getPoolInfo,
+  getQuote
+} from '@/utils/uniswap-v3';
 
 const main = async () => {
   const targetChainId = ChainId.MAINNET;
@@ -38,6 +41,11 @@ const main = async () => {
 
   const quote = await getQuote(WETH_TOKEN, USDC_TOKEN, 1); // TODO: quote for WETH -> USDC is misleading
   console.log('quote:', quote);
+
+  // ray test touch <
+  const test = await getPoolInfo(WETH_TOKEN, USDC_TOKEN);
+  console.log('ray : ***** test => ', test);
+  // ray test touch >
 };
 
 main();
