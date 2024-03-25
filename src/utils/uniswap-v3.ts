@@ -1,11 +1,24 @@
-import { Contract } from 'ethers';
+import {
+  Contract,
+  AbiCoder
+} from 'ethers';
 import {
   computePoolAddress,
-  FeeAmount
+  FeeAmount,
+  Pool,
+  Route,
+  SwapQuoter,
+  Trade
 } from '@uniswap/v3-sdk';
-import { Token } from '@uniswap/sdk-core';
+import {
+  Currency,
+  CurrencyAmount,
+  TradeType,
+  Token
+} from '@uniswap/sdk-core';
 import Quoter from '@uniswap/v3-periphery/artifacts/contracts/lens/Quoter.sol/Quoter.json';
 import IUniswapV3PoolABI from '@uniswap/v3-core/artifacts/contracts/interfaces/IUniswapV3Pool.sol/IUniswapV3Pool.json';
+import JSBI from 'jsbi';
 
 import { getProvider } from '@/utils/web3';
 import {
@@ -14,7 +27,8 @@ import {
 } from '@/utils/conversion';
 import {
   getUniswapV3QuoterContractAddress,
-  getUniswapV3PoolFactoryContractAddress
+  getUniswapV3PoolFactoryContractAddress,
+  getUniswapV3QuoterV2ContractAddress
 } from '@/constants/addresses';
 
 const getPoolConstants = async (inputToken: Token, outputToken: Token, poolFee = FeeAmount.MEDIUM): Promise<{
@@ -85,7 +99,6 @@ const getQuote = async (inputToken: Token, outputToken: Token, inputAmount: numb
   }
 };
 
-// ray test touch <
 interface PoolInfo {
   token0: string
   token1: string
@@ -148,9 +161,86 @@ const getPoolInfo = async (inputToken: Token, outputToken: Token, poolFee = FeeA
     throw new Error(`Thrown at "getPoolInfo": ${error}`);
   }
 };
-// ray test touch >
+
+const getOutputQuote = async (route: Route<Currency, Currency>, inputAmount: number) => {
+  try {
+    const inputToken = route.input;
+    const chainId = inputToken.chainId;
+  
+    const provider = getProvider(chainId);
+    if (!provider) {
+      throw new Error('Provider required to get pool state');
+    }
+  
+    const { calldata } = await SwapQuoter.quoteCallParameters(
+      route,
+      CurrencyAmount.fromRawAmount(
+        inputToken,
+        fromReadableAmount(
+          inputAmount,
+          inputToken.decimals
+        ).toString()
+      ),
+      TradeType.EXACT_INPUT,
+      {
+        useQuoterV2: true
+      }
+    );
+  
+    const quoteCallReturnData = await provider.call({
+      to: getUniswapV3QuoterV2ContractAddress(chainId),
+      data: calldata
+    });
+  
+    return AbiCoder.defaultAbiCoder().decode(['uint256'], quoteCallReturnData);
+  } catch (error) {
+    throw new Error(`Thrown at "getOutputQuote": ${error}`);
+  }
+};
+
+const createTrade = async (inputToken: Token, outputToken: Token, inputAmount: number, poolFee = FeeAmount.MEDIUM) => {
+  try {
+    const poolInfo = await getPoolInfo(inputToken, outputToken, poolFee);
+
+    const pool = new Pool(
+      inputToken,
+      outputToken,
+      poolFee,
+      poolInfo.sqrtPriceX96.toString(),
+      poolInfo.liquidity.toString(),
+      Number(poolInfo.tick.toString())
+    );
+
+    const swapRoute = new Route(
+      [pool],
+      inputToken,
+      outputToken
+    );
+
+    const amountOut = await getOutputQuote(swapRoute, inputAmount);
+
+    return Trade.createUncheckedTrade({
+      route: swapRoute,
+      inputAmount: CurrencyAmount.fromRawAmount(
+        inputToken,
+        fromReadableAmount(
+          inputAmount,
+          inputToken.decimals
+        ).toString()
+      ),
+      outputAmount: CurrencyAmount.fromRawAmount(
+        outputToken,
+        JSBI.BigInt(amountOut)
+      ),
+      tradeType: TradeType.EXACT_INPUT
+    });
+  } catch (error) {
+    throw new Error(`Thrown at "createTrade": ${error}`);
+  }
+};
 
 export {
   getQuote,
-  getPoolInfo
+  getPoolInfo,
+  createTrade
 };

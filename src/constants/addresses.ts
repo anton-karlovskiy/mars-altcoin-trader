@@ -45,7 +45,6 @@ const getUniswapV3QuoterContractAddress = (chainId: ChainId) => {
   }
 };
 
-// ray test touch <
 const getUniswapV3QuoterV2ContractAddress = (chainId: ChainId) => {
   switch (chainId) {
     case ChainId.MAINNET:
@@ -55,7 +54,6 @@ const getUniswapV3QuoterV2ContractAddress = (chainId: ChainId) => {
       throw new Error(`Uniswap V3 quoter V2 contract address is not set on this chain: ${chainId}!`);
   }
 };
-// ray test touch >
 
 export {
   getUniswapV2Router02ContractAddress,
