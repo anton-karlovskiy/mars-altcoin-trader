@@ -12,7 +12,78 @@ import {
   WALLET_ACCOUNT_PRIVATE_KEY
 } from '@/config/keys';
 
-const getProvider = (chainId: ChainId) => {
+const wallets: { [chainId: string]: Wallet } = {};
+const providers: { [chainId: string]: JsonRpcProvider } = {};
+
+const getWallet = (chainId: ChainId): Wallet => {
+  if (!wallets[chainId]) {
+    wallets[chainId] = createWallet(chainId);
+  }
+  return wallets[chainId];
+};
+
+const getProvider = (chainId: ChainId): JsonRpcProvider => {
+  if (!providers[chainId]) {
+    providers[chainId] = createProvider(chainId);
+  }
+  return providers[chainId];
+};
+
+// ray test touch <
+enum TransactionState {
+  Failed = 'Failed',
+  New = 'New',
+  Rejected = 'Rejected',
+  Sending = 'Sending',
+  Sent = 'Sent',
+}
+
+const sendTransaction = async (
+  transaction: TransactionRequest,
+  wallet: Wallet
+): Promise<TransactionState> => {
+  try {
+    if (transaction.value) {
+      transaction.value = BigInt(transaction.value);
+    }
+    const txResponse = await wallet.sendTransaction(transaction);
+    console.log('ray : ***** txResponse => ', txResponse);
+  
+    let txReceipt: TransactionReceipt | null = null;
+    const provider = wallet.provider;
+    if (!provider) {
+      return TransactionState.Failed;
+    }
+  
+    while (txReceipt === null) {
+      try {
+        txReceipt = await provider.getTransactionReceipt(txResponse.hash);
+  
+        if (txReceipt === null) {
+          continue;
+        }
+      } catch (error) {
+        console.log('Receipt error:', error);
+        break;
+      }
+    }
+    console.log('ray : ***** txReceipt => ', txReceipt);
+  
+    // Transaction was successful if status === 1
+    if (txReceipt) {
+      return TransactionState.Sent;
+    } else {
+      return TransactionState.Failed;
+    }
+  } catch (error) {
+    throw new Error(`Thrown at "sendTransaction": ${error}`);
+  }
+};
+// ray test touch >
+
+// Internal functionality
+
+const createProvider = (chainId: ChainId) => {
   if (!INFURA_API_KEY) {
     throw new Error('Infura API key is undefined!');
   }
@@ -48,11 +119,7 @@ const getProvider = (chainId: ChainId) => {
   return provider;
 };
 
-// TODO:
-// signer -> wallet
-// getSigner -> createWallet
-// wallet.provider -> getSigner
-const getSigner = (chainId: ChainId) => {
+const createWallet = (chainId: ChainId): Wallet => {
   if (!WALLET_ACCOUNT_PRIVATE_KEY) {
     throw new Error('Wallet account private key is undefined!');
   }
@@ -62,61 +129,9 @@ const getSigner = (chainId: ChainId) => {
   return new Wallet(WALLET_ACCOUNT_PRIVATE_KEY, provider);
 };
 
-// ray test touch <
-enum TransactionState {
-  Failed = 'Failed',
-  New = 'New',
-  Rejected = 'Rejected',
-  Sending = 'Sending',
-  Sent = 'Sent',
-}
-
-const sendTransaction = async (
-  transaction: TransactionRequest,
-  signer: Wallet
-): Promise<TransactionState> => {
-  try {
-    if (transaction.value) {
-      transaction.value = BigInt(transaction.value);
-    }
-    const txResponse = await signer.sendTransaction(transaction);
-    console.log('ray : ***** txResponse => ', txResponse);
-  
-    let txReceipt: TransactionReceipt | null = null;
-    const provider = signer.provider;
-    if (!provider) {
-      return TransactionState.Failed;
-    }
-  
-    while (txReceipt === null) {
-      try {
-        txReceipt = await provider.getTransactionReceipt(txResponse.hash);
-  
-        if (txReceipt === null) {
-          continue;
-        }
-      } catch (error) {
-        console.log('Receipt error:', error);
-        break;
-      }
-    }
-    console.log('ray : ***** txReceipt => ', txReceipt);
-  
-    // Transaction was successful if status === 1
-    if (txReceipt) {
-      return TransactionState.Sent;
-    } else {
-      return TransactionState.Failed;
-    }
-  } catch (error) {
-    throw new Error(`Thrown at "sendTransaction": ${error}`);
-  }
-};
-// ray test touch >
-
 export {
   getProvider,
-  getSigner,
+  getWallet,
   sendTransaction,
   TransactionState
-}
+};

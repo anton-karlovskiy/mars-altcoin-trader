@@ -25,7 +25,7 @@ import JSBI from 'jsbi';
 
 import {
   getProvider,
-  getSigner,
+  getWallet,
   TransactionState,
   sendTransaction
 } from '@/utils/web3';
@@ -262,7 +262,7 @@ const executeTrade = async (
   try {
     const chainId = trade.swaps[0].route.chainId;
   
-    const signer = getSigner(chainId);
+    const wallet = getWallet(chainId);
   
     // Give approval to the router to spend the token
     // const tokenApproval = await getTokenTransferApproval(CurrentConfig.tokens.in);
@@ -275,7 +275,7 @@ const executeTrade = async (
     const options: SwapOptions = {
       slippageTolerance: new Percent(50, 10_000), // 50 bips, or 0.50%
       deadline: Math.floor(Date.now() / 1000) + 60 * 20, // 20 minutes from the current Unix time
-      recipient: signer.address
+      recipient: wallet.address
     };
   
     const methodParameters = SwapRouter.swapCallParameters([trade], options);
@@ -284,7 +284,7 @@ const executeTrade = async (
       data: methodParameters.calldata,
       to: getUniswapV3SwapRouterContractAddress(chainId),
       value: methodParameters.value,
-      from: signer.address,
+      from: wallet.address,
       maxFeePerGas: MAX_FEE_PER_GAS,
       maxPriorityFeePerGas: MAX_PRIORITY_FEE_PER_GAS,
       gasLimit: GAS_LIMIT
@@ -292,7 +292,7 @@ const executeTrade = async (
 
     console.log('ray : ***** tx => ', tx);
   
-    return await sendTransaction(tx, signer);
+    return await sendTransaction(tx, wallet);
   } catch (error) {
     throw new Error(`Thrown at "executeTrade": ${error}`);
   }

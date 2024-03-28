@@ -22,7 +22,7 @@ import IUniswapV2Router02 from '@uniswap/v2-periphery/build/IUniswapV2Router02.j
 import { getUniswapV2Router02ContractAddress } from '@/constants/addresses';
 import {
   getProvider,
-  getSigner
+  getWallet
 } from '@/utils/web3';
 import { fromReadableAmount } from '@/utils/conversion';
 
@@ -109,15 +109,15 @@ const swap = async (inputToken: Token, outputToken: Token, inputAmount: number, 
 
     const chainId = inputToken.chainId;
 
-    const signer = getSigner(chainId);
+    const wallet = getWallet(chainId);
 
-    const uniswapV2Router02Contract = new Contract(getUniswapV2Router02ContractAddress(chainId), IUniswapV2Router02.abi, signer);
+    const uniswapV2Router02Contract = new Contract(getUniswapV2Router02ContractAddress(chainId), IUniswapV2Router02.abi, wallet);
 
     const slippageTolerance = new Percent(slippage * 100, '10000'); // 50 bips, or 0.50%
 
     const amountOutMin = trade.minimumAmountOut(slippageTolerance).toExact();
     const path = [inputToken.address, outputToken.address];
-    const to = signer.address;
+    const to = wallet.address;
     const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from the current Unix time
 
     let tx: TransactionResponse;
@@ -184,11 +184,11 @@ const approveTokenSpending = async (
   try {
     const chainId = token.chainId;
   
-    const signer = getSigner(chainId);
+    const wallet = getWallet(chainId);
   
-    const tokenContract = new Contract(token.address, IUniswapV2ERC20.abi, signer);
+    const tokenContract = new Contract(token.address, IUniswapV2ERC20.abi, wallet);
   
-    const currentAllowance: bigint = await tokenContract.allowance(signer.address, spenderAddress);
+    const currentAllowance: bigint = await tokenContract.allowance(wallet.address, spenderAddress);
   
     if (currentAllowance < approvalAmount) {
       const tx = await tokenContract.approve(spenderAddress, approvalAmount);
