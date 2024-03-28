@@ -37,6 +37,8 @@ e.g. UNI/ETH
 - [crypto-sniper](https://github.com/zookyy/crypto-sniper)
 - [simple-uniswap-sdk](https://github.com/joshstevens19/simple-uniswap-sdk)
 - [v2-sdk](https://github.com/Uniswap/v2-sdk)
+- [Uniswap: Universal Router: ETH to USDC](https://gist.github.com/BlockmanCodes/52ede9384fd774ed18c5dea5912fbe3d)
+- [universal-router-sdk](https://github.com/Uniswap/universal-router-sdk)
 
 - [Decentralized-Exchange-Trading-Scripts](https://github.com/henrytirla/Decentralized-Exchange-Trading-Scripts)
 - [ethereum-abi-types-generator](https://github.com/joshstevens19/ethereum-abi-types-generator)

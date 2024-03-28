@@ -65,10 +65,21 @@ const getUniswapV3SwapRouterContractAddress = (chainId: ChainId) => {
   }
 };
 
+const getWethContractAddress = (chainId: ChainId) => {
+  switch (chainId) {
+    case ChainId.MAINNET:
+    case ChainId.GOERLI:
+      return '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2';
+    default:
+      throw new Error(`WETH contract address is not set on this chain: ${chainId}!`);
+  }
+};
+
 export {
   getUniswapV2Router02ContractAddress,
   getUniswapV3PoolFactoryContractAddress,
   getUniswapV3QuoterContractAddress,
   getUniswapV3QuoterV2ContractAddress,
-  getUniswapV3SwapRouterContractAddress
+  getUniswapV3SwapRouterContractAddress,
+  getWethContractAddress
 };

@@ -11,7 +11,10 @@ import {
   sellTokens,
   getTradeInfo
 } from '@/utils/uniswap-v2';
-import { createToken } from '@/utils/helpers';
+import {
+  createToken,
+  wrapETH
+} from '@/utils/helpers';
 import {
   USDC_TOKEN,
   WETH_TOKEN
@@ -45,14 +48,16 @@ const main = async () => {
 
   const inputToken = WETH_TOKEN;
   const outputToken = USDC_TOKEN;
-  const inputAmount = 0.001;
+  const inputAmount = 0.0001;
 
   const trade = await createTrade(inputToken, outputToken, inputAmount);
   console.log('trade:', trade);
   
   // ray test touch <
-  const txState = await executeTrade(trade);
-  console.log('ray : ***** txState => ', txState);
+  // const txState = await executeTrade(trade);
+
+  const test = await wrapETH(inputAmount, targetChainId);
+  console.log('ray : ***** test => ', test);
   // ray test touch >
 };
 
