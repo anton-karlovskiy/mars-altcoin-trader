@@ -41,3 +41,110 @@
   "version": "6.11.1"
 }
 ```
+
+- Tried to execute a transaction without `gasLimit` set.
+
+```JSON
+// RE: https://docs.ethers.org/v5/troubleshooting/errors/#help-UNPREDICTABLE_GAS_LIMIT
+{
+  "reason": "cannot estimate gas; transaction may fail or may require manual gas limit",
+  "code": "UNPREDICTABLE_GAS_LIMIT",
+  "nestedErrorDetails": {
+    "reason": "processing response error",
+    "code": "SERVER_ERROR",
+    "body": {
+      "jsonrpc": "2.0",
+      "id": 393,
+      "error": {
+        "code": -32000,
+        "message": "gas required exceeds allowance (1379)"
+      }
+    },
+    "requestBody": {
+      "method": "eth_estimateGas",
+      "params": [
+        {
+          "type": "0x2",
+          "maxFeePerGas": "0xa3f3683b0",
+          "maxPriorityFeePerGas": "0x59682f00",
+          "from": "0x4336eb76e1ada43b02d933ac40499c584f1d60c9",
+          "to": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+          "data": "0x095ea7b3000000000000000000000000e592427a0aece92de3edee1f18e0157c0586156400000000000000000000000000000000000000000000006c6b935b8bbd400000"
+        }
+      ],
+      "id": 393,
+      "jsonrpc": "2.0"
+    },
+    "requestMethod": "POST",
+    "url": "https://mainnet.infura.io/v3/529882cf33164ad9b6d20b276b8f9a71"
+  }
+}
+```
+
+- Tried to execute a transaction without `gasLimit` set.
+
+```JSON
+// RE: https://docs.ethers.org/v6/api/utils/errors/#about-errors
+Error: missing revert data
+{
+  "action": "estimateGas",
+  "data": null,
+  "reason": null,
+  "transaction": {
+  "data": "0x414bf389000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb480000000000000000000000000000000000000000000000000000000000000bb80000000000000000000000004336eb76e1ada43b02d933ac40499c584f1d60c9000000000000000000000000000000000000000000000000000000006602897800000000000000000000000000000000000000000000000000038d7ea4c680000000000000000000000000000000000000000000000000000000000000374359000000000000000000000000000000000000000000000000000000000000000",
+  "from": "0x4336Eb76E1ADa43b02d933Ac40499C584f1D60c9",
+  "to": "0xE592427A0AEce92De3Edee1F18E0157C05861564"
+  },
+  "invocation": null,
+  "revert": null,
+  "code": "CALL_EXCEPTION",
+  "version": "6.11.1"
+}
+```
+
+- Tried to swap WETH for USDC with no WETH balance: https://etherscan.io/tx/0xe1c5accb48fe945120075a2cb22d1977b32a7d2841330998474e3daaf6049aba. The tx itself was executed but failed and gas was used.
+
+```js
+TransactionResponse {
+  provider: JsonRpcProvider {},
+  blockNumber: null,
+  blockHash: null,
+  index: undefined,
+  hash: '0x7d31bb29e663d22044cfb5c69afbbfa14ff3e10e937dadb5078db7ac6213c5f1',
+  type: 2,
+  to: '0xE592427A0AEce92De3Edee1F18E0157C05861564',
+  from: '0xEDC49e6B30Ca0a94d353a2E307C1EB24C5Fa3509',
+  nonce: 31,
+  gasLimit: 100000n,
+  gasPrice: undefined,
+  maxPriorityFeePerGas: 100000000000n,
+  maxFeePerGas: 100000000000n,
+  maxFeePerBlobGas: null,
+  data: '0x414bf389000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb480000000000000000000000000000000000000000000000000000000000000bb8000000000000000000000000edc49e6b30ca0a94d353a2e307c1eb24c5fa350900000000000000000000000000000000000000000000000000000000660367c700000000000000000000000000000000000000000000000000038d7ea4c68000000000000000000000000000000000000000000000000000000000000036699d0000000000000000000000000000000000000000000000000000000000000000',
+  value: 0n,
+  chainId: 1n,
+  signature: Signature { r: "0x438daae61b9a89be77c7c1caeb21ecf7db3e0880d14d4ea8807e91847f3d53a1", s: "0x027de30df7c2fb4d5435d693c430ebc8fcaff4c5168f0174c7ab261cdf24bf0f", yParity: 1, networkV: null },
+  accessList: [],
+  blobVersionedHashes: null
+}
+
+TransactionReceipt {
+  provider: JsonRpcProvider {},
+  to: '0xE592427A0AEce92De3Edee1F18E0157C05861564',
+  from: '0xEDC49e6B30Ca0a94d353a2E307C1EB24C5Fa3509',
+  contractAddress: null,
+  hash: '0x7d31bb29e663d22044cfb5c69afbbfa14ff3e10e937dadb5078db7ac6213c5f1',
+  index: 18,
+  blockHash: '0xb9daab3f1c58028d2327b9e834d5538d1582be757e8bf914d04645c6ae18d35d',
+  blockNumber: 19522037,
+  logsBloom: '0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+  gasUsed: 98060n,
+  blobGasUsed: null,
+  cumulativeGasUsed: 2559882n,
+  gasPrice: 100000000000n,
+  blobGasPrice: null,
+  type: 2,
+  status: 0,
+  root: undefined
+}
+```

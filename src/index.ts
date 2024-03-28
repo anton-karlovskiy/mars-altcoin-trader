@@ -16,10 +16,10 @@ import {
   USDC_TOKEN,
   WETH_TOKEN
 } from '@/constants/tokens';
-
 import {
   getQuote,
-  createTrade
+  createTrade,
+  executeTrade
 } from '@/utils/uniswap-v3';
 
 const main = async () => {
@@ -48,7 +48,12 @@ const main = async () => {
   const inputAmount = 0.001;
 
   const trade = await createTrade(inputToken, outputToken, inputAmount);
-  console.log('ray : ***** trade => ', trade);
+  console.log('trade:', trade);
+  
+  // ray test touch <
+  const txState = await executeTrade(trade);
+  console.log('ray : ***** txState => ', txState);
+  // ray test touch >
 };
 
 main();

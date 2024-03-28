@@ -8,19 +8,27 @@ import {
   Pool,
   Route,
   SwapQuoter,
-  Trade
+  Trade,
+  SwapOptions,
+  SwapRouter
 } from '@uniswap/v3-sdk';
 import {
   Currency,
   CurrencyAmount,
   TradeType,
-  Token
+  Token,
+  Percent
 } from '@uniswap/sdk-core';
 import Quoter from '@uniswap/v3-periphery/artifacts/contracts/lens/Quoter.sol/Quoter.json';
 import IUniswapV3PoolABI from '@uniswap/v3-core/artifacts/contracts/interfaces/IUniswapV3Pool.sol/IUniswapV3Pool.json';
 import JSBI from 'jsbi';
 
-import { getProvider } from '@/utils/web3';
+import {
+  getProvider,
+  getSigner,
+  TransactionState,
+  sendTransaction
+} from '@/utils/web3';
 import {
   fromReadableAmount,
   toReadableAmount
@@ -28,8 +36,14 @@ import {
 import {
   getUniswapV3QuoterContractAddress,
   getUniswapV3PoolFactoryContractAddress,
-  getUniswapV3QuoterV2ContractAddress
+  getUniswapV3QuoterV2ContractAddress,
+  getUniswapV3SwapRouterContractAddress
 } from '@/constants/addresses';
+import {
+  MAX_FEE_PER_GAS,
+  MAX_PRIORITY_FEE_PER_GAS,
+  GAS_LIMIT
+} from '@/constants/msc';
 
 const getPoolConstants = async (inputToken: Token, outputToken: Token, poolFee = FeeAmount.MEDIUM): Promise<{
   token0: string
@@ -165,7 +179,7 @@ const getPoolInfo = async (inputToken: Token, outputToken: Token, poolFee = FeeA
 const getOutputQuote = async (route: Route<Currency, Currency>, inputAmount: number) => {
   try {
     const inputToken = route.input;
-    const chainId = inputToken.chainId;
+    const chainId = route.chainId;
   
     const provider = getProvider(chainId);
     if (!provider) {
@@ -198,7 +212,9 @@ const getOutputQuote = async (route: Route<Currency, Currency>, inputAmount: num
   }
 };
 
-const createTrade = async (inputToken: Token, outputToken: Token, inputAmount: number, poolFee = FeeAmount.MEDIUM) => {
+type TokenTrade = Trade<Token, Token, TradeType>;
+
+const createTrade = async (inputToken: Token, outputToken: Token, inputAmount: number, poolFee = FeeAmount.MEDIUM): Promise<TokenTrade> => {
   try {
     const poolInfo = await getPoolInfo(inputToken, outputToken, poolFee);
 
@@ -239,8 +255,53 @@ const createTrade = async (inputToken: Token, outputToken: Token, inputAmount: n
   }
 };
 
+// ray test touch <
+const executeTrade = async (
+  trade: TokenTrade
+): Promise<TransactionState> => {
+  try {
+    const chainId = trade.swaps[0].route.chainId;
+  
+    const signer = getSigner(chainId);
+  
+    // Give approval to the router to spend the token
+    // const tokenApproval = await getTokenTransferApproval(CurrentConfig.tokens.in);
+  
+    // Fail if transfer approvals do not go through
+    // if (tokenApproval !== TransactionState.Sent) {
+    //   return TransactionState.Failed
+    // }
+  
+    const options: SwapOptions = {
+      slippageTolerance: new Percent(50, 10_000), // 50 bips, or 0.50%
+      deadline: Math.floor(Date.now() / 1000) + 60 * 20, // 20 minutes from the current Unix time
+      recipient: signer.address
+    };
+  
+    const methodParameters = SwapRouter.swapCallParameters([trade], options);
+  
+    const tx = {
+      data: methodParameters.calldata,
+      to: getUniswapV3SwapRouterContractAddress(chainId),
+      value: methodParameters.value,
+      from: signer.address,
+      maxFeePerGas: MAX_FEE_PER_GAS,
+      maxPriorityFeePerGas: MAX_PRIORITY_FEE_PER_GAS,
+      gasLimit: GAS_LIMIT
+    };
+
+    console.log('ray : ***** tx => ', tx);
+  
+    return await sendTransaction(tx, signer);
+  } catch (error) {
+    throw new Error(`Thrown at "executeTrade": ${error}`);
+  }
+};
+// ray test touch >
+
 export {
   getQuote,
   getPoolInfo,
-  createTrade
+  createTrade,
+  executeTrade
 };

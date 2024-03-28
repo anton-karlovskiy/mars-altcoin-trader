@@ -55,9 +55,22 @@ const getUniswapV3QuoterV2ContractAddress = (chainId: ChainId) => {
   }
 };
 
+// ray test touch <
+const getUniswapV3SwapRouterContractAddress = (chainId: ChainId) => {
+  switch (chainId) {
+    case ChainId.MAINNET:
+    case ChainId.GOERLI:
+      return '0xE592427A0AEce92De3Edee1F18E0157C05861564';
+    default:
+      throw new Error(`Uniswap V3 swap router contract address is not set on this chain: ${chainId}!`);
+  }
+};
+// ray test touch >
+
 export {
   getUniswapV2Router02ContractAddress,
   getUniswapV3PoolFactoryContractAddress,
   getUniswapV3QuoterContractAddress,
-  getUniswapV3QuoterV2ContractAddress
+  getUniswapV3QuoterV2ContractAddress,
+  getUniswapV3SwapRouterContractAddress
 };

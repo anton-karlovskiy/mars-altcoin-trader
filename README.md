@@ -59,6 +59,7 @@ e.g. UNI/ETH
 - Fine-tuning e.g. `gasPrice` & `gasLimit`
   * https://stackoverflow.com/questions/70622074/set-gas-limit-on-contract-method-in-ethers-js
   * https://github.com/ethers-io/ethers.js/issues/40
+- https://github.com/raydium-io/raydium-sdk & https://github.com/raydium-io
 
 #### Code-related
 

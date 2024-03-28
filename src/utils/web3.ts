@@ -1,7 +1,8 @@
 import {
   JsonRpcProvider,
   Network,
-  Wallet
+  Wallet,
+  TransactionRequest
 } from 'ethers';
 import { ChainId } from '@uniswap/sdk-core';
 
@@ -33,14 +34,23 @@ const getProvider = (chainId: ChainId) => {
       throw new Error('Invalid blockchain network!');
   }
 
-  return  new JsonRpcProvider(
+  const provider = new JsonRpcProvider(
     infuraEndpoint,
     // RE: https://github.com/ethers-io/ethers.js/issues/4377#issuecomment-1837559329
     Network.from(chainId),
     { staticNetwork: true }
   );
+  if (!provider) {
+    throw new Error('Cannot execute a trade without a connected wallet!');
+  }
+
+  return provider;
 };
 
+// TODO:
+// signer -> wallet
+// getSigner -> createWallet
+// wallet.provider -> getSigner
 const getSigner = (chainId: ChainId) => {
   if (!WALLET_ACCOUNT_PRIVATE_KEY) {
     throw new Error('Wallet account private key is undefined!');
@@ -51,7 +61,61 @@ const getSigner = (chainId: ChainId) => {
   return new Wallet(WALLET_ACCOUNT_PRIVATE_KEY, provider);
 };
 
+// ray test touch <
+enum TransactionState {
+  Failed = 'Failed',
+  New = 'New',
+  Rejected = 'Rejected',
+  Sending = 'Sending',
+  Sent = 'Sent',
+}
+
+const sendTransaction = async (
+  transaction: TransactionRequest,
+  signer: Wallet
+): Promise<TransactionState> => {
+  try {
+    if (transaction.value) {
+      transaction.value = BigInt(transaction.value);
+    }
+    const txResponse = await signer.sendTransaction(transaction);
+    console.log('ray : ***** txResponse => ', txResponse);
+  
+    let receipt = null;
+    const provider = signer.provider;
+    if (!provider) {
+      return TransactionState.Failed;
+    }
+  
+    while (receipt === null) {
+      try {
+        receipt = await provider.getTransactionReceipt(txResponse.hash);
+  
+        if (receipt === null) {
+          continue;
+        }
+      } catch (error) {
+        console.log('Receipt error:', error);
+        break;
+      }
+    }
+    console.log('ray : ***** receipt => ', receipt);
+  
+    // Transaction was successful if status === 1
+    if (receipt) {
+      return TransactionState.Sent;
+    } else {
+      return TransactionState.Failed;
+    }
+  } catch (error) {
+    throw new Error(`Thrown at "sendTransaction": ${error}`);
+  }
+};
+// ray test touch >
+
 export {
   getProvider,
-  getSigner
+  getSigner,
+  sendTransaction,
+  TransactionState
 }
