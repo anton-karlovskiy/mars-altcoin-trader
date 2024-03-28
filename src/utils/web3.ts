@@ -29,7 +29,6 @@ const getProvider = (chainId: ChainId): JsonRpcProvider => {
   return providers[chainId];
 };
 
-// ray test touch <
 enum TransactionState {
   Failed = 'Failed',
   New = 'New',
@@ -47,7 +46,9 @@ const sendTransaction = async (
       transaction.value = BigInt(transaction.value);
     }
     const txResponse = await wallet.sendTransaction(transaction);
+    // ray test touch <
     console.log('ray : ***** txResponse => ', txResponse);
+    // ray test touch >
   
     let txReceipt: TransactionReceipt | null = null;
     const provider = wallet.provider;
@@ -67,7 +68,9 @@ const sendTransaction = async (
         break;
       }
     }
+    // ray test touch <
     console.log('ray : ***** txReceipt => ', txReceipt);
+    // ray test touch >
   
     // Transaction was successful if status === 1
     if (txReceipt) {
@@ -79,7 +82,6 @@ const sendTransaction = async (
     throw new Error(`Thrown at "sendTransaction": ${error}`);
   }
 };
-// ray test touch >
 
 // Internal functionality
 

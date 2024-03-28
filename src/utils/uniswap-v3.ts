@@ -255,7 +255,6 @@ const createTrade = async (inputToken: Token, outputToken: Token, inputAmount: n
   }
 };
 
-// ray test touch <
 const executeTrade = async (
   trade: TokenTrade
 ): Promise<TransactionState> => {
@@ -264,6 +263,7 @@ const executeTrade = async (
   
     const wallet = getWallet(chainId);
   
+    // ray test touch <
     // Give approval to the router to spend the token
     // const tokenApproval = await getTokenTransferApproval(CurrentConfig.tokens.in);
   
@@ -271,6 +271,7 @@ const executeTrade = async (
     // if (tokenApproval !== TransactionState.Sent) {
     //   return TransactionState.Failed
     // }
+    // ray test touch >
   
     const options: SwapOptions = {
       slippageTolerance: new Percent(50, 10_000), // 50 bips, or 0.50%
@@ -290,14 +291,15 @@ const executeTrade = async (
       gasLimit: GAS_LIMIT
     };
 
+    // ray test touch <
     console.log('ray : ***** tx => ', tx);
+    // ray test touch >
   
     return await sendTransaction(tx, wallet);
   } catch (error) {
     throw new Error(`Thrown at "executeTrade": ${error}`);
   }
 };
-// ray test touch >
 
 export {
   getQuote,
