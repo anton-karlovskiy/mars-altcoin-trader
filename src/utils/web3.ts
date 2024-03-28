@@ -2,7 +2,8 @@ import {
   JsonRpcProvider,
   Network,
   Wallet,
-  TransactionRequest
+  TransactionRequest,
+  TransactionReceipt
 } from 'ethers';
 import { ChainId } from '@uniswap/sdk-core';
 
@@ -81,17 +82,17 @@ const sendTransaction = async (
     const txResponse = await signer.sendTransaction(transaction);
     console.log('ray : ***** txResponse => ', txResponse);
   
-    let receipt = null;
+    let txReceipt: TransactionReceipt | null = null;
     const provider = signer.provider;
     if (!provider) {
       return TransactionState.Failed;
     }
   
-    while (receipt === null) {
+    while (txReceipt === null) {
       try {
-        receipt = await provider.getTransactionReceipt(txResponse.hash);
+        txReceipt = await provider.getTransactionReceipt(txResponse.hash);
   
-        if (receipt === null) {
+        if (txReceipt === null) {
           continue;
         }
       } catch (error) {
@@ -99,10 +100,10 @@ const sendTransaction = async (
         break;
       }
     }
-    console.log('ray : ***** receipt => ', receipt);
+    console.log('ray : ***** txReceipt => ', txReceipt);
   
     // Transaction was successful if status === 1
-    if (receipt) {
+    if (txReceipt) {
       return TransactionState.Sent;
     } else {
       return TransactionState.Failed;
