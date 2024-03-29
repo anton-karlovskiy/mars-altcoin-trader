@@ -67,8 +67,6 @@ const wrapETH = async (rawAmount: bigint, chainId: ChainId): Promise<Transaction
       value: rawAmount,
       from: wallet.address,
       to: wethContractAddress
-      // maxFeePerGas: MAX_FEE_PER_GAS,
-      // maxPriorityFeePerGas: MAX_PRIORITY_FEE_PER_GAS
     };
   
     return await sendTransaction(transaction, wallet);
@@ -128,8 +126,7 @@ const approveTokenSpending = async (
 
       const txReceipt = await sendTransaction({
         ...tx,
-        from: wallet.address,
-        gasLimit: GAS_LIMIT
+        from: wallet.address
       }, wallet);
 
       console.log('Approve tx hash:', txReceipt.hash);

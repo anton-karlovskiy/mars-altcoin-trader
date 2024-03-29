@@ -45,8 +45,8 @@ const main = async () => {
   const outputToken = USDC_TOKEN;
   const inputAmount = 0.00001;
 
-  // const txReceipt = await buyTokensOnUniswapV3(USDC_TOKEN, inputAmount);
-  // console.log('Buy TX receipt on Uniswap V3:', txReceipt);
+  const txReceipt = await buyTokensOnUniswapV3(USDC_TOKEN, inputAmount);
+  console.log('Buy TX receipt on Uniswap V3:', txReceipt);
 };
 
 main();

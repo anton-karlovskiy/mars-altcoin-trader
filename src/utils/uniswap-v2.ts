@@ -133,9 +133,7 @@ const swapOnUniswapV2 = async (inputToken: Token, outputToken: Token, inputAmoun
           to,
           deadline,
           {
-            value: parseUnits(value, inputToken.decimals),
-            // gasPrice: parseUnits("50.0", "gwei"), // Optional: Gas price (in Gwei)
-            // gasLimit: 21000, // Optional: Gas limit for the transaction
+            value: parseUnits(value, inputToken.decimals)
           }
         );
         break;
@@ -147,11 +145,7 @@ const swapOnUniswapV2 = async (inputToken: Token, outputToken: Token, inputAmoun
           parseUnits(amountOutMin, outputToken.decimals),
           path,
           to,
-          deadline,
-          {
-            // gasPrice: parseUnits("50.0", "gwei"),
-            // gasLimit: 21000,
-          }
+          deadline
         );
         break;
       default:

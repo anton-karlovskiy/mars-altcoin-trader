@@ -277,10 +277,7 @@ const executeTradeOnUniswapV3 = async (
       data: methodParameters.calldata,
       to: getUniswapV3SwapRouterContractAddress(chainId),
       value: methodParameters.value,
-      from: wallet.address,
-      // maxFeePerGas: MAX_FEE_PER_GAS,
-      // maxPriorityFeePerGas: MAX_PRIORITY_FEE_PER_GAS,
-      gasLimit: GAS_LIMIT
+      from: wallet.address
     };
 
     return await sendTransaction(tx, wallet);
