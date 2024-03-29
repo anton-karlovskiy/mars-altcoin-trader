@@ -77,7 +77,7 @@ const getPoolConstantsOnUniswapV3 = async (inputToken: Token, outputToken: Token
       fee
     };
   } catch (error) {
-    throw new Error(`Thrown at "getPoolConstants": ${error}`);
+    throw new Error(`Thrown at "getPoolConstantsOnUniswapV3": ${error}`);
   }
 };
 
@@ -109,7 +109,7 @@ const getQuoteOnUniswapV3 = async (inputToken: Token, outputToken: Token, inputA
   
     return toReadableAmount(quotedAmountOut, outputToken.decimals);
   } catch (error) {
-    throw new Error(`Thrown at "getQuote": ${error}`);
+    throw new Error(`Thrown at "getQuoteOnUniswapV3": ${error}`);
   }
 };
 
@@ -172,7 +172,7 @@ const getPoolInfoOnUniswapV3 = async (inputToken: Token, outputToken: Token, poo
       tick: slot0[1]
     };
   } catch (error) {
-    throw new Error(`Thrown at "getPoolInfo": ${error}`);
+    throw new Error(`Thrown at "getPoolInfoOnUniswapV3": ${error}`);
   }
 };
 
@@ -208,7 +208,7 @@ const getOutputQuoteOnUniswapV3 = async (route: Route<Currency, Currency>, input
   
     return AbiCoder.defaultAbiCoder().decode(['uint256'], quoteCallReturnData);
   } catch (error) {
-    throw new Error(`Thrown at "getOutputQuote": ${error}`);
+    throw new Error(`Thrown at "getOutputQuoteOnUniswapV3": ${error}`);
   }
 };
 
@@ -251,7 +251,7 @@ const createTradeOnUniswapV3 = async (inputToken: Token, outputToken: Token, inp
       tradeType: TradeType.EXACT_INPUT
     });
   } catch (error) {
-    throw new Error(`Thrown at "createTrade": ${error}`);
+    throw new Error(`Thrown at "createTradeOnUniswapV3": ${error}`);
   }
 };
 
@@ -281,7 +281,7 @@ const executeTradeOnUniswapV3 = async (
 
     return await sendTransaction(tx, wallet);
   } catch (error) {
-    throw new Error(`Thrown at "executeTrade": ${error}`);
+    throw new Error(`Thrown at "executeTradeOnUniswapV3": ${error}`);
   }
 };
 

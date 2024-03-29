@@ -44,7 +44,7 @@ const createPairOnUniswapV2 = async (tokenA: Token, tokenB: Token) => {
   
     return pair;
   } catch (error) {
-    throw new Error(`Thrown at "createPair": ${error}`);
+    throw new Error(`Thrown at "createPairOnUniswapV2": ${error}`);
   }
 };
 
@@ -65,7 +65,7 @@ const calculateExecutionPriceOnUniswapV2 = async (baseToken: Token, quoteToken: 
 
     return trade.executionPrice.toSignificant(significantDigits);
   } catch (error) {
-    throw new Error(`Thrown at "calculateExePrice": ${error}`);
+    throw new Error(`Thrown at "calculateExecutionPriceOnUniswapV2": ${error}`);
   }
 };
 
@@ -78,7 +78,7 @@ const calculateMidPriceOnUniswapV2 = async (baseToken: Token, quoteToken: Token,
 
     return route.midPrice.toSignificant(significantDigits);
   } catch (error) {
-    throw new Error(`Thrown at "calculateMidPrice": ${error}`);
+    throw new Error(`Thrown at "calculateMidPriceOnUniswapV2": ${error}`);
   }
 };
 
@@ -92,7 +92,7 @@ const createTradeOnUniswapV2 = async (inputToken: Token, outputToken: Token, inp
   
     return new Trade(route, CurrencyAmount.fromRawAmount(inputToken, rawInputAmount.toString()), TradeType.EXACT_INPUT);
   } catch (error) {
-    throw new Error(`Thrown at "createTrade": ${error}`);
+    throw new Error(`Thrown at "createTradeOnUniswapV2": ${error}`);
   }
 };
 
@@ -157,7 +157,7 @@ const swapOnUniswapV2 = async (inputToken: Token, outputToken: Token, inputAmoun
       from: wallet.address
     }, wallet);
   } catch (error) {
-    throw new Error(`Thrown at "swap": ${error}`);
+    throw new Error(`Thrown at "swapOnUniswapV2": ${error}`);
   }
 };
 
@@ -177,7 +177,7 @@ const buyTokensOnUniswapV2 = async (outputToken: Token, inputAmount: number, sli
       UniswapV2Router02Methods.SwapExactETHForTokensSupportingFeeOnTransferTokens
     );
   } catch (error) {
-    throw new Error(`Thrown at "buyTokens": ${error}`);
+    throw new Error(`Thrown at "buyTokensOnUniswapV2": ${error}`);
   }
 };
 
@@ -199,7 +199,7 @@ const sellTokensOnUniswapV2 = async (inputToken: Token, inputAmount: number, sli
       UniswapV2Router02Methods.SwapExactTokensForETHSupportingFeeOnTransferTokens
     );
   } catch (error) {
-    throw new Error(`Thrown at "sellTokens": ${error}`);
+    throw new Error(`Thrown at "sellTokensOnUniswapV2": ${error}`);
   }
 };
 
@@ -229,7 +229,7 @@ const getTradeInfoOnUniswapV2 = async (inputToken: Token, outputToken: Token, in
       midPrice
     };
   } catch (error) {
-    throw new Error(`Thrown at "getTradeInfo": ${error}`);
+    throw new Error(`Thrown at "getTradeInfoOnUniswapV2": ${error}`);
   }
 };
 

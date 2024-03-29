@@ -32,7 +32,7 @@ const main = async () => {
   }
 
   const tradeInfoOnUniswapV2 = await getTradeInfoOnUniswapV2(WETH, DAI, 1000);
-  console.log('tradeInfo:', tradeInfoOnUniswapV2);
+  console.log('Trade info on Uniswap V2:', tradeInfoOnUniswapV2);
 
   // const txReceipt = await buyTokensOnUniswapV2(DAI, 0.0001, 0.5);
   // console.log('Buy TX receipt on Uniswap V2:', txReceipt);
@@ -40,12 +40,12 @@ const main = async () => {
   // console.log('Sell TX receipt on Uniswap V2:', txReceipt);
 
   const quote = await getQuoteOnUniswapV3(WETH_TOKEN, USDC_TOKEN, 1); // TODO: quote for WETH -> USDC is misleading
-  console.log('quote:', quote);
+  console.log('quote on Uniswap V3:', quote);
 
   // const txReceipt = await buyTokensOnUniswapV3(USDC_TOKEN, 0.00001, 0.5);
   // console.log('Buy TX receipt on Uniswap V3:', txReceipt);
-  const txReceipt = await sellTokensOnUniswapV3(USDC_TOKEN, 0.01, 0.5);
-  console.log('Sell TX receipt on Uniswap V3:', txReceipt);
+  // const txReceipt = await sellTokensOnUniswapV3(USDC_TOKEN, 0.01, 0.5);
+  // console.log('Sell TX receipt on Uniswap V3:', txReceipt);
 };
 
 main();
