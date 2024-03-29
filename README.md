@@ -24,7 +24,7 @@ e.g. UNI/ETH
 ## Assumptions (proof of concept)
 
 - Ethereum mainnet
-- Uniswap V2
+- Uniswap V2 & Uniswap V3
 - Routes consist of only one pair (direct pair).
 - Token/ETH pools
 

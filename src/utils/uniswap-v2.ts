@@ -223,6 +223,7 @@ const getTradeInfoOnUniswapV2 = async (inputToken: Token, outputToken: Token, in
     const executionPrice = trade.executionPrice.toSignificant(priceSignificantDigits);
 
     return {
+      inputAmount,
       outputAmount,
       priceImpact,
       executionPrice,

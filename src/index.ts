@@ -19,7 +19,8 @@ import {
 import {
   getQuoteOnUniswapV3,
   buyTokensOnUniswapV3,
-  sellTokensOnUniswapV3
+  sellTokensOnUniswapV3,
+  getTradeInfoOnUniswapV3
 } from '@/utils/uniswap-v3';
 
 const main = async () => {
@@ -46,6 +47,9 @@ const main = async () => {
   // console.log('Buy TX receipt on Uniswap V3:', txReceipt);
   // const txReceipt = await sellTokensOnUniswapV3(USDC_TOKEN, 0.01, 0.5);
   // console.log('Sell TX receipt on Uniswap V3:', txReceipt);
+
+  const tradeInfoOnUniswapV3 = await getTradeInfoOnUniswapV3(WETH, DAI, 1000);
+  console.log('Trade info on Uniswap V3:', tradeInfoOnUniswapV3);
 };
 
 main();

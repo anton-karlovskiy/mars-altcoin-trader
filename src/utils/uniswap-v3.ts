@@ -325,8 +325,30 @@ const sellTokensOnUniswapV3 = async (inputToken: Token, inputAmount: number, sli
   }
 };
 
+const getTradeInfoOnUniswapV3 = async (inputToken: Token, outputToken: Token, inputAmount: number, priceSignificantDigits = 6, priceImpactDecimalPlaces = 2) => {
+  try {
+    const trade = await createTradeOnUniswapV3(inputToken, outputToken, inputAmount);
+
+    const outputAmount = trade.outputAmount.toExact();
+
+    const priceImpact = trade.priceImpact.toFixed(priceImpactDecimalPlaces);
+    
+    const executionPrice = trade.executionPrice.toSignificant(priceSignificantDigits);
+
+    return {
+      inputAmount,
+      outputAmount,
+      priceImpact,
+      executionPrice
+    };
+  } catch (error) {
+    throw new Error(`Thrown at "getTradeInfoOnUniswapV3": ${error}`);
+  }
+};
+
 export {
   getQuoteOnUniswapV3,
   buyTokensOnUniswapV3,
-  sellTokensOnUniswapV3
+  sellTokensOnUniswapV3,
+  getTradeInfoOnUniswapV3
 };
