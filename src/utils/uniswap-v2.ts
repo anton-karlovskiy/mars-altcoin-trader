@@ -1,7 +1,7 @@
 import {
   Contract,
-  parseUnits,
-  TransactionResponse
+  ContractTransaction,
+  parseUnits
 } from 'ethers';
 import {
   Token,
@@ -20,7 +20,8 @@ import IUniswapV2Router02 from '@uniswap/v2-periphery/build/IUniswapV2Router02.j
 import { getUniswapV2Router02ContractAddress } from '@/constants/addresses';
 import {
   getProvider,
-  getWallet
+  getWallet,
+  sendTransaction
 } from '@/utils/web3';
 import { fromReadableAmount } from '@/utils/conversion';
 import { approveTokenSpending } from '@/utils/helpers';
@@ -119,12 +120,12 @@ const swap = async (inputToken: Token, outputToken: Token, inputAmount: number, 
     const to = wallet.address;
     const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from the current Unix time
 
-    let txResponse: TransactionResponse;
+    let tx: ContractTransaction;
     switch (swapMethod) {
       case UniswapV2Router02Methods.SwapExactETHForTokensSupportingFeeOnTransferTokens: // Buy
         const value = trade.inputAmount.toExact();
 
-        txResponse = await uniswapV2Router02Contract.swapExactETHForTokensSupportingFeeOnTransferTokens(
+        tx = await uniswapV2Router02Contract.swapExactETHForTokensSupportingFeeOnTransferTokens.populateTransaction(
           parseUnits(amountOutMin, outputToken.decimals),
           path,
           to,
@@ -139,7 +140,7 @@ const swap = async (inputToken: Token, outputToken: Token, inputAmount: number, 
       case UniswapV2Router02Methods.SwapExactTokensForETHSupportingFeeOnTransferTokens: // Sell
         const amountIn = trade.inputAmount.toExact();
 
-        txResponse = await uniswapV2Router02Contract.swapExactTokensForETHSupportingFeeOnTransferTokens(
+        tx = await uniswapV2Router02Contract.swapExactTokensForETHSupportingFeeOnTransferTokens.populateTransaction(
           parseUnits(amountIn, inputToken.decimals),
           parseUnits(amountOutMin, outputToken.decimals),
           path,
@@ -155,7 +156,10 @@ const swap = async (inputToken: Token, outputToken: Token, inputAmount: number, 
         throw new Error('Invalid method!');
     }
 
-    return await txResponse.wait();
+    return await sendTransaction({
+      ...tx,
+      from: wallet.address
+    }, wallet);
   } catch (error) {
     throw new Error(`Thrown at "swap": ${error}`);
   }
