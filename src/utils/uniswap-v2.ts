@@ -7,7 +7,8 @@ import {
   Token,
   CurrencyAmount,
   TradeType,
-  Percent
+  Percent,
+  WETH9
 } from '@uniswap/sdk-core';
 import {
   Pair,
@@ -166,11 +167,16 @@ const swapOnUniswapV2 = async (inputToken: Token, outputToken: Token, inputAmoun
   }
 };
 
-// TODO: inputToken will be explicit (ETH)
-const buyTokensOnUniswapV2 = async (inputToken: Token, outputToken: Token, inputAmount: number, slippage: number = 0.5) => {
+const buyTokensOnUniswapV2 = async (outputToken: Token, inputAmount: number, slippage: number = 0.5) => {
   try {
+    const chainId = outputToken.chainId;
+    const WETH = WETH9[chainId];
+    if (!WETH) {
+      throw new Error('Invalid WETH!');
+    }
+
     return await swapOnUniswapV2(
-      inputToken,
+      WETH,
       outputToken,
       inputAmount,
       slippage,
@@ -181,14 +187,19 @@ const buyTokensOnUniswapV2 = async (inputToken: Token, outputToken: Token, input
   }
 };
 
-// TODO: outputToken will be explicit (ETH)
-const sellTokensOnUniswapV2 = async (inputToken: Token, outputToken: Token, inputAmount: number, slippage: number = 0.5) => {
+const sellTokensOnUniswapV2 = async (inputToken: Token, inputAmount: number, slippage: number = 0.5) => {
   try {
+    const chainId = inputToken.chainId;
+    const WETH = WETH9[chainId];
+    if (!WETH) {
+      throw new Error('Invalid WETH!');
+    }
+
     await approveTokenSpending(inputToken, getUniswapV2Router02ContractAddress(inputToken.chainId));
 
     return await swapOnUniswapV2(
       inputToken,
-      outputToken,
+      WETH,
       inputAmount,
       slippage,
       UniswapV2Router02Methods.SwapExactTokensForETHSupportingFeeOnTransferTokens

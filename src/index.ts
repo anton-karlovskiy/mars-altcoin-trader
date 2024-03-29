@@ -33,11 +33,10 @@ const main = async () => {
   const tradeInfoOnUniswapV2 = await getTradeInfoOnUniswapV2(WETH, DAI, 1000);
   console.log('tradeInfo:', tradeInfoOnUniswapV2);
 
-  // TODO: test with Uniswap V3 stuff
-  // const txReceipt = await buyTokensOnUniswapV2(WETH, DAI, 0.001, 0.5);
-  // console.log('TX receipt:', txReceipt);
-  // const txReceipt = await sellTokensOnUniswapV2(DAI, WETH, 0.4, 0.5);
-  // console.log('TX receipt:', txReceipt);
+  // const txReceipt = await buyTokensOnUniswapV2(DAI, 0.0001, 0.5);
+  // console.log('Buy TX receipt on Uniswap V2:', txReceipt);
+  // const txReceipt = await sellTokensOnUniswapV2(DAI, 0.01, 0.5);
+  // console.log('Sell TX receipt on Uniswap V2:', txReceipt);
 
   const quote = await getQuoteOnUniswapV3(WETH_TOKEN, USDC_TOKEN, 1); // TODO: quote for WETH -> USDC is misleading
   console.log('quote:', quote);
@@ -46,8 +45,8 @@ const main = async () => {
   const outputToken = USDC_TOKEN;
   const inputAmount = 0.00001;
 
-  const txReceipt = await buyTokensOnUniswapV3(USDC_TOKEN, inputAmount);
-  console.log('txReceipt:', txReceipt);
+  // const txReceipt = await buyTokensOnUniswapV3(USDC_TOKEN, inputAmount);
+  // console.log('Buy TX receipt on Uniswap V3:', txReceipt);
 };
 
 main();
