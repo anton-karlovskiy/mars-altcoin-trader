@@ -219,7 +219,6 @@ type TokenTrade = Trade<Token, Token, TradeType>;
 const createTradeOnUniswapV3 = async (inputToken: Token, outputToken: Token, inputAmount: number, poolFee = FeeAmount.MEDIUM): Promise<TokenTrade> => {
   try {
     const poolInfo = await getPoolInfoOnUniswapV3(inputToken, outputToken, poolFee);
-    console.log('ray : ***** poolInfo => ', poolInfo);
 
     const pool = new Pool(
       inputToken,
@@ -229,7 +228,6 @@ const createTradeOnUniswapV3 = async (inputToken: Token, outputToken: Token, inp
       poolInfo.liquidity.toString(),
       Number(poolInfo.tick.toString())
     );
-    console.log('ray : ***** pool => ', pool);
 
     const swapRoute = new Route(
       [pool],
@@ -238,7 +236,6 @@ const createTradeOnUniswapV3 = async (inputToken: Token, outputToken: Token, inp
     );
 
     const amountOut = await getOutputQuoteOnUniswapV3(swapRoute, inputAmount);
-    console.log('ray : ***** JSBI.BigInt(amountOut) => ', JSBI.BigInt(amountOut));
 
     return Trade.createUncheckedTrade({
       route: swapRoute,
@@ -281,8 +278,8 @@ const executeTradeOnUniswapV3 = async (
       to: getUniswapV3SwapRouterContractAddress(chainId),
       value: methodParameters.value,
       from: wallet.address,
-      maxFeePerGas: MAX_FEE_PER_GAS,
-      maxPriorityFeePerGas: MAX_PRIORITY_FEE_PER_GAS,
+      // maxFeePerGas: MAX_FEE_PER_GAS,
+      // maxPriorityFeePerGas: MAX_PRIORITY_FEE_PER_GAS,
       gasLimit: GAS_LIMIT
     };
 
@@ -292,7 +289,6 @@ const executeTradeOnUniswapV3 = async (
   }
 };
 
-// ray test touch <
 const buyTokensOnUniswapV3 = async (outputToken: Token, inputAmount: number) => {
   try {
     const chainId = outputToken.chainId;
@@ -312,7 +308,6 @@ const buyTokensOnUniswapV3 = async (outputToken: Token, inputAmount: number) => 
     throw new Error(`Thrown at "buyTokensOnUniswapV3": ${error}`);
   }
 };
-// ray test touch >
 
 export {
   getQuoteOnUniswapV3,

@@ -66,9 +66,9 @@ const wrapETH = async (rawAmount: bigint, chainId: ChainId): Promise<Transaction
       data: wethContract.interface.encodeFunctionData('deposit'),
       value: rawAmount,
       from: wallet.address,
-      to: wethContractAddress,
-      maxFeePerGas: MAX_FEE_PER_GAS,
-      maxPriorityFeePerGas: MAX_PRIORITY_FEE_PER_GAS
+      to: wethContractAddress
+      // maxFeePerGas: MAX_FEE_PER_GAS,
+      // maxPriorityFeePerGas: MAX_PRIORITY_FEE_PER_GAS
     };
   
     return await sendTransaction(transaction, wallet);

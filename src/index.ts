@@ -11,10 +11,7 @@ import {
   sellTokensOnUniswapV2,
   getTradeInfoOnUniswapV2
 } from '@/utils/uniswap-v2';
-import {
-  createToken,
-  prepareWETH
-} from '@/utils/helpers';
+import { createToken } from '@/utils/helpers';
 import {
   USDC_TOKEN,
   WETH_TOKEN
@@ -47,12 +44,10 @@ const main = async () => {
 
   const inputToken = WETH_TOKEN;
   const outputToken = USDC_TOKEN;
-  const inputAmount = 0.00004;
+  const inputAmount = 0.00001;
 
-  // ray test touch <
-  const test = await buyTokensOnUniswapV3(USDC_TOKEN, inputAmount);
-  console.log('ray : ***** test => ', test);
-  // ray test touch >
+  const txReceipt = await buyTokensOnUniswapV3(USDC_TOKEN, inputAmount);
+  console.log('txReceipt:', txReceipt);
 };
 
 main();
