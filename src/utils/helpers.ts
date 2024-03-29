@@ -1,4 +1,8 @@
-import { Contract } from 'ethers';
+import {
+  Contract,
+  TransactionReceipt,
+  MaxUint256
+} from 'ethers';
 import {
   ChainId,
   Token
@@ -8,16 +12,19 @@ import IUniswapV2ERC20 from '@uniswap/v2-core/build/IUniswapV2ERC20.json';
 import {
   getProvider,
   getWallet,
-  sendTransaction,
-  TransactionState
+  sendTransaction
 } from '@/utils/web3';
 import {
   WETH_ABI,
   MAX_FEE_PER_GAS,
-  MAX_PRIORITY_FEE_PER_GAS
+  MAX_PRIORITY_FEE_PER_GAS,
+  GAS_LIMIT
 } from '@/constants/msc';
 import { getWethContractAddress } from '@/constants/addresses';
-import { fromReadableAmount } from '@/utils/conversion';
+import {
+  fromReadableAmount,
+  toReadableAmount
+} from '@/utils/conversion';
 
 const getDecimals = async (tokenAddress: string, chainId: ChainId) => {
   try {
@@ -44,7 +51,7 @@ const createToken = async (address: string, chainId: ChainId, decimals: number |
 };
 
 // RE: https://stackoverflow.com/questions/71289482/doing-uniswap-v3-swaps-with-native-eth
-const wrapETH = async (rawAmount: bigint, chainId: ChainId): Promise<TransactionState> => {
+const wrapETH = async (rawAmount: bigint, chainId: ChainId): Promise<TransactionReceipt> => {
   try {
     const wallet = getWallet(chainId);
     const wethContractAddress = getWethContractAddress(chainId);
@@ -102,9 +109,42 @@ const prepareWETH = async (amount: number, chainId: ChainId) => {
   }
 };
 
+const approveTokenSpending = async (
+  token: Token,
+  spenderAddress: string,
+  approvalAmount = MaxUint256 // Allow maximum token spend (can be adjusted)
+): Promise<TransactionReceipt | undefined> => {
+  try {
+    const chainId = token.chainId;
+  
+    const wallet = getWallet(chainId);
+  
+    const tokenContract = new Contract(token.address, IUniswapV2ERC20.abi, wallet);
+  
+    const currentAllowance: bigint = await tokenContract.allowance(wallet.address, spenderAddress);
+  
+    if (currentAllowance < approvalAmount) {
+      const tx = await tokenContract.approve.populateTransaction(spenderAddress, approvalAmount);
+
+      const txReceipt = await sendTransaction({
+        ...tx,
+        from: wallet.address,
+        gasLimit: GAS_LIMIT
+      }, wallet);
+
+      console.log('Approve tx hash:', txReceipt.hash);
+      return txReceipt;
+    } else {
+      console.log('The spender has been approved:', toReadableAmount(approvalAmount, token.decimals));
+    }
+  } catch (error) {
+    throw new Error(`Thrown at "approveTokenSpending": ${error}`);
+  }
+};
+
 export {
   getDecimals,
   createToken,
-  wrapETH,
-  prepareWETH
+  prepareWETH,
+  approveTokenSpending
 };

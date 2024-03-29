@@ -29,55 +29,39 @@ const getProvider = (chainId: ChainId): JsonRpcProvider => {
   return providers[chainId];
 };
 
-enum TransactionState {
-  Failed = 'Failed',
-  New = 'New',
-  Rejected = 'Rejected',
-  Sending = 'Sending',
-  Sent = 'Sent',
-}
+// enum TransactionState {
+//   Failed = 'Failed',
+//   New = 'New',
+//   Rejected = 'Rejected',
+//   Sending = 'Sending',
+//   Sent = 'Sent',
+// }
 
 const sendTransaction = async (
   transaction: TransactionRequest,
   wallet: Wallet
-): Promise<TransactionState> => {
+): Promise<TransactionReceipt> => {
   try {
     if (transaction.value) {
       transaction.value = BigInt(transaction.value);
     }
     const txResponse = await wallet.sendTransaction(transaction);
-    // ray test touch <
-    console.log('ray : ***** txResponse => ', txResponse);
-    // ray test touch >
   
     let txReceipt: TransactionReceipt | null = null;
     const provider = wallet.provider;
     if (!provider) {
-      return TransactionState.Failed;
+      throw new Error('Something went wrong!');
     }
   
     while (txReceipt === null) {
-      try {
-        txReceipt = await provider.getTransactionReceipt(txResponse.hash);
-  
-        if (txReceipt === null) {
-          continue;
-        }
-      } catch (error) {
-        console.log('Receipt error:', error);
-        break;
+      txReceipt = await provider.getTransactionReceipt(txResponse.hash);
+
+      if (txReceipt === null) {
+        continue;
       }
     }
-    // ray test touch <
-    console.log('ray : ***** txReceipt => ', txReceipt);
-    // ray test touch >
   
-    // Transaction was successful if status === 1
-    if (txReceipt) {
-      return TransactionState.Sent;
-    } else {
-      return TransactionState.Failed;
-    }
+    return txReceipt;
   } catch (error) {
     throw new Error(`Thrown at "sendTransaction": ${error}`);
   }
@@ -134,6 +118,5 @@ const createWallet = (chainId: ChainId): Wallet => {
 export {
   getProvider,
   getWallet,
-  sendTransaction,
-  TransactionState
+  sendTransaction
 };

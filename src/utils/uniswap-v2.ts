@@ -1,8 +1,7 @@
 import {
   Contract,
   parseUnits,
-  TransactionResponse,
-  MaxUint256
+  TransactionResponse
 } from 'ethers';
 import {
   Token,
@@ -16,7 +15,6 @@ import {
   Trade
 } from '@uniswap/v2-sdk';
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json';
-import IUniswapV2ERC20 from '@uniswap/v2-core/build/IUniswapV2ERC20.json';
 import IUniswapV2Router02 from '@uniswap/v2-periphery/build/IUniswapV2Router02.json';
 
 import { getUniswapV2Router02ContractAddress } from '@/constants/addresses';
@@ -25,6 +23,7 @@ import {
   getWallet
 } from '@/utils/web3';
 import { fromReadableAmount } from '@/utils/conversion';
+import { approveTokenSpending } from '@/utils/helpers';
 
 const createPair = async (tokenA: Token, tokenB: Token) => {
   try {
@@ -120,12 +119,12 @@ const swap = async (inputToken: Token, outputToken: Token, inputAmount: number, 
     const to = wallet.address;
     const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from the current Unix time
 
-    let tx: TransactionResponse;
+    let txResponse: TransactionResponse;
     switch (swapMethod) {
       case UniswapV2Router02Methods.SwapExactETHForTokensSupportingFeeOnTransferTokens: // Buy
         const value = trade.inputAmount.toExact();
 
-        tx = await uniswapV2Router02Contract.swapExactETHForTokensSupportingFeeOnTransferTokens(
+        txResponse = await uniswapV2Router02Contract.swapExactETHForTokensSupportingFeeOnTransferTokens(
           parseUnits(amountOutMin, outputToken.decimals),
           path,
           to,
@@ -140,7 +139,7 @@ const swap = async (inputToken: Token, outputToken: Token, inputAmount: number, 
       case UniswapV2Router02Methods.SwapExactTokensForETHSupportingFeeOnTransferTokens: // Sell
         const amountIn = trade.inputAmount.toExact();
 
-        tx = await uniswapV2Router02Contract.swapExactTokensForETHSupportingFeeOnTransferTokens(
+        txResponse = await uniswapV2Router02Contract.swapExactTokensForETHSupportingFeeOnTransferTokens(
           parseUnits(amountIn, inputToken.decimals),
           parseUnits(amountOutMin, outputToken.decimals),
           path,
@@ -156,7 +155,7 @@ const swap = async (inputToken: Token, outputToken: Token, inputAmount: number, 
         throw new Error('Invalid method!');
     }
 
-    return await tx.wait();
+    return await txResponse.wait();
   } catch (error) {
     throw new Error(`Thrown at "swap": ${error}`);
   }
@@ -173,30 +172,6 @@ const buyTokens = async (inputToken: Token, outputToken: Token, inputAmount: num
     );
   } catch (error) {
     throw new Error(`Thrown at "buyTokens": ${error}`);
-  }
-};
-
-const approveTokenSpending = async (
-  token: Token,
-  spenderAddress: string,
-  approvalAmount = MaxUint256 // Allow maximum token spend (can be adjusted)
-) => {
-  try {
-    const chainId = token.chainId;
-  
-    const wallet = getWallet(chainId);
-  
-    const tokenContract = new Contract(token.address, IUniswapV2ERC20.abi, wallet);
-  
-    const currentAllowance: bigint = await tokenContract.allowance(wallet.address, spenderAddress);
-  
-    if (currentAllowance < approvalAmount) {
-      const tx = await tokenContract.approve(spenderAddress, approvalAmount);
-      console.log('Approve tx hash at "approveTokenSpending":', tx.hash);
-      await tx.wait();
-    }
-  } catch (error) {
-    throw new Error(`Thrown at "approveTokenSpending": ${error}`);
   }
 };
 

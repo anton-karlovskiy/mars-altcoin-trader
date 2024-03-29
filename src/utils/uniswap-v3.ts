@@ -1,6 +1,7 @@
 import {
   Contract,
-  AbiCoder
+  AbiCoder,
+  TransactionReceipt
 } from 'ethers';
 import {
   computePoolAddress,
@@ -26,7 +27,6 @@ import JSBI from 'jsbi';
 import {
   getProvider,
   getWallet,
-  TransactionState,
   sendTransaction
 } from '@/utils/web3';
 import {
@@ -257,7 +257,7 @@ const createTrade = async (inputToken: Token, outputToken: Token, inputAmount: n
 
 const executeTrade = async (
   trade: TokenTrade
-): Promise<TransactionState> => {
+): Promise<TransactionReceipt> => {
   try {
     const chainId = trade.swaps[0].route.chainId;
   
@@ -291,10 +291,6 @@ const executeTrade = async (
       gasLimit: GAS_LIMIT
     };
 
-    // ray test touch <
-    console.log('ray : ***** tx => ', tx);
-    // ray test touch >
-  
     return await sendTransaction(tx, wallet);
   } catch (error) {
     throw new Error(`Thrown at "executeTrade": ${error}`);
