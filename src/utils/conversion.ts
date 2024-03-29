@@ -10,7 +10,7 @@ function fromReadableAmount(
   return parseUnits(amount.toString(), decimals);
 }
 
-function toReadableAmount(rawAmount: number, decimals: number): string {
+function toReadableAmount(rawAmount: bigint, decimals: number): string {
   return formatUnits(rawAmount, decimals);
 }
 

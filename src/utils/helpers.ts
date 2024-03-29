@@ -8,7 +8,8 @@ import IUniswapV2ERC20 from '@uniswap/v2-core/build/IUniswapV2ERC20.json';
 import {
   getProvider,
   getWallet,
-  sendTransaction
+  sendTransaction,
+  TransactionState
 } from '@/utils/web3';
 import {
   WETH_ABI,
@@ -43,30 +44,67 @@ const createToken = async (address: string, chainId: ChainId, decimals: number |
 };
 
 // RE: https://stackoverflow.com/questions/71289482/doing-uniswap-v3-swaps-with-native-eth
-const wrapETH = async (amount: number, chainId: ChainId) => {
-  const wallet = getWallet(chainId);
-  const wethContractAddress = getWethContractAddress(chainId);
+const wrapETH = async (rawAmount: bigint, chainId: ChainId): Promise<TransactionState> => {
+  try {
+    const wallet = getWallet(chainId);
+    const wethContractAddress = getWethContractAddress(chainId);
+  
+    const wethContract = new Contract(
+      wethContractAddress,
+      WETH_ABI,
+      wallet.provider
+    );
+  
+    const transaction = {
+      data: wethContract.interface.encodeFunctionData('deposit'),
+      value: rawAmount,
+      from: wallet.address,
+      to: wethContractAddress,
+      maxFeePerGas: MAX_FEE_PER_GAS,
+      maxPriorityFeePerGas: MAX_PRIORITY_FEE_PER_GAS
+    };
+  
+    return await sendTransaction(transaction, wallet);
+  } catch (error) {
+    throw new Error(`Thrown at "wrapETH": ${error}`);
+  }
+};
 
-  const wethContract = new Contract(
-    wethContractAddress,
-    WETH_ABI,
-    wallet.provider
-  );
+const getTokenBalance = async (tokenAddress: string, chainId: ChainId, walletAddress: string): Promise<bigint> => {
+  try {
+    const provider = getProvider(chainId);
+    const tokenContract = new Contract(tokenAddress, IUniswapV2ERC20.abi, provider);
 
-  const transaction = {
-    data: wethContract.interface.encodeFunctionData('deposit'),
-    value: fromReadableAmount(amount, 18),
-    from: wallet.address,
-    to: wethContractAddress,
-    maxFeePerGas: MAX_FEE_PER_GAS,
-    maxPriorityFeePerGas: MAX_PRIORITY_FEE_PER_GAS
-  };
+    return await tokenContract.balanceOf(walletAddress);
+  } catch (error) {
+    throw new Error(`Thrown at "getTokenBalance": ${error}`);
+  }
+};
 
-  return await sendTransaction(transaction, wallet);
+const prepareWETH = async (amount: number, chainId: ChainId) => {
+  try {
+    const wethContractAddress = getWethContractAddress(chainId);
+    const wallet = getWallet(chainId);
+    const remainingWeth = await getTokenBalance(wethContractAddress, chainId, wallet.address);
+  
+    const neededWeth = fromReadableAmount(amount, 18);
+  
+    if (remainingWeth >= neededWeth) {
+      console.log('The wallet has enough WETH balance.');
+      return;
+    }
+  
+    const deltaWeth = neededWeth - remainingWeth;
+  
+    return wrapETH(deltaWeth, chainId);
+  } catch (error) {
+    throw new Error(`Thrown at "prepareWETH": ${error}`);
+  }
 };
 
 export {
   getDecimals,
   createToken,
-  wrapETH
+  wrapETH,
+  prepareWETH
 };
