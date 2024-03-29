@@ -26,7 +26,7 @@ import {
 import { fromReadableAmount } from '@/utils/conversion';
 import { approveTokenSpending } from '@/utils/helpers';
 
-const createPair = async (tokenA: Token, tokenB: Token) => {
+const createPairOnUniswapV2 = async (tokenA: Token, tokenB: Token) => {
   try {
     const pairAddress = Pair.getAddress(tokenA, tokenB);
 
@@ -54,9 +54,9 @@ const createPair = async (tokenA: Token, tokenB: Token) => {
 // RE: https://docs.uniswap.org/sdk/v2/guides/pricing#direct
 
 // Execution Price
-const calculateExecutionPrice = async (baseToken: Token, quoteToken: Token, baseTokenAmount = 1, significantDigits = 6) => {
+const calculateExecutionPriceOnUniswapV2 = async (baseToken: Token, quoteToken: Token, baseTokenAmount = 1, significantDigits = 6) => {
   try {
-    const pair = await createPair(quoteToken, baseToken);
+    const pair = await createPairOnUniswapV2(quoteToken, baseToken);
 
     const route = new Route([pair], baseToken, quoteToken); // Only the direct pair case is considered.
     const baseTokenRawAmount = fromReadableAmount(baseTokenAmount, baseToken.decimals);
@@ -69,9 +69,9 @@ const calculateExecutionPrice = async (baseToken: Token, quoteToken: Token, base
 };
 
 // Mid Price
-const calculateMidPrice = async (baseToken: Token, quoteToken: Token, significantDigits = 6) => {
+const calculateMidPriceOnUniswapV2 = async (baseToken: Token, quoteToken: Token, significantDigits = 6) => {
   try {
-    const pair = await createPair(quoteToken, baseToken);
+    const pair = await createPairOnUniswapV2(quoteToken, baseToken);
 
     const route = new Route([pair], baseToken, quoteToken); // Only the direct pair case is considered.
 
@@ -81,9 +81,9 @@ const calculateMidPrice = async (baseToken: Token, quoteToken: Token, significan
   }
 };
 
-const createTrade = async (inputToken: Token, outputToken: Token, inputAmount: number) => {
+const createTradeOnUniswapV2 = async (inputToken: Token, outputToken: Token, inputAmount: number) => {
   try {
-    const pair = await createPair(inputToken, outputToken);
+    const pair = await createPairOnUniswapV2(inputToken, outputToken);
   
     const route = new Route([pair], inputToken, outputToken);
   
@@ -103,9 +103,10 @@ enum UniswapV2Router02Methods {
   SwapExactTokensForETHSupportingFeeOnTransferTokens = 'swapExactTokensForETHSupportingFeeOnTransferTokens'
 };
 
-const swap = async (inputToken: Token, outputToken: Token, inputAmount: number, slippage: number = 0.5, swapMethod: UniswapV2Router02Methods) => {
+// TODO: inputToken | outputToken will be explicit (ETH)
+const swapOnUniswapV2 = async (inputToken: Token, outputToken: Token, inputAmount: number, slippage: number = 0.5, swapMethod: UniswapV2Router02Methods) => {
   try {
-    const trade = await createTrade(inputToken, outputToken, inputAmount);
+    const trade = await createTradeOnUniswapV2(inputToken, outputToken, inputAmount);
 
     const chainId = inputToken.chainId;
 
@@ -165,9 +166,10 @@ const swap = async (inputToken: Token, outputToken: Token, inputAmount: number, 
   }
 };
 
+// TODO: inputToken will be explicit (ETH)
 const buyTokensOnUniswapV2 = async (inputToken: Token, outputToken: Token, inputAmount: number, slippage: number = 0.5) => {
   try {
-    return await swap(
+    return await swapOnUniswapV2(
       inputToken,
       outputToken,
       inputAmount,
@@ -179,11 +181,12 @@ const buyTokensOnUniswapV2 = async (inputToken: Token, outputToken: Token, input
   }
 };
 
+// TODO: outputToken will be explicit (ETH)
 const sellTokensOnUniswapV2 = async (inputToken: Token, outputToken: Token, inputAmount: number, slippage: number = 0.5) => {
   try {
     await approveTokenSpending(inputToken, getUniswapV2Router02ContractAddress(inputToken.chainId));
 
-    return await swap(
+    return await swapOnUniswapV2(
       inputToken,
       outputToken,
       inputAmount,
@@ -201,8 +204,8 @@ const getTradeInfoOnUniswapV2 = async (inputToken: Token, outputToken: Token, in
       trade,
       midPrice
     ] = await Promise.all([
-      createTrade(inputToken, outputToken, inputAmount),
-      calculateMidPrice(inputToken, outputToken, priceSignificantDigits)
+      createTradeOnUniswapV2(inputToken, outputToken, inputAmount),
+      calculateMidPriceOnUniswapV2(inputToken, outputToken, priceSignificantDigits)
     ]);
 
     // RE: https://docs.uniswap.org/sdk/core/reference/classes/CurrencyAmount
@@ -226,10 +229,8 @@ const getTradeInfoOnUniswapV2 = async (inputToken: Token, outputToken: Token, in
 };
 
 export {
-  createPair,
-  calculateExecutionPrice,
-  calculateMidPrice,
-  createTrade,
+  calculateExecutionPriceOnUniswapV2,
+  calculateMidPriceOnUniswapV2,
   buyTokensOnUniswapV2,
   sellTokensOnUniswapV2,
   getTradeInfoOnUniswapV2

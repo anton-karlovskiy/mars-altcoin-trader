@@ -20,9 +20,8 @@ import {
   WETH_TOKEN
 } from '@/constants/tokens';
 import {
-  getQuote,
-  createTrade,
-  executeTrade
+  getQuoteOnUniswapV3,
+  buyTokensOnUniswapV3
 } from '@/utils/uniswap-v3';
 
 const main = async () => {
@@ -43,18 +42,16 @@ const main = async () => {
   // const txReceipt = await sellTokensOnUniswapV2(DAI, WETH, 0.4, 0.5);
   // console.log('TX receipt:', txReceipt);
 
-  const quote = await getQuote(WETH_TOKEN, USDC_TOKEN, 1); // TODO: quote for WETH -> USDC is misleading
+  const quote = await getQuoteOnUniswapV3(WETH_TOKEN, USDC_TOKEN, 1); // TODO: quote for WETH -> USDC is misleading
   console.log('quote:', quote);
 
   const inputToken = WETH_TOKEN;
   const outputToken = USDC_TOKEN;
-  const inputAmount = 0.00014;
+  const inputAmount = 0.00004;
 
   // ray test touch <
-  const trade = await createTrade(inputToken, outputToken, inputAmount);
-  console.log('trade:', trade);
-  
-  // const txState = await executeTrade(trade);
+  const test = await buyTokensOnUniswapV3(USDC_TOKEN, inputAmount);
+  console.log('ray : ***** test => ', test);
   // ray test touch >
 };
 

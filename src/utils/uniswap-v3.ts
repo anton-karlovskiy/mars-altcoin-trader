@@ -18,7 +18,8 @@ import {
   CurrencyAmount,
   TradeType,
   Token,
-  Percent
+  Percent,
+  WETH9
 } from '@uniswap/sdk-core';
 import Quoter from '@uniswap/v3-periphery/artifacts/contracts/lens/Quoter.sol/Quoter.json';
 import IUniswapV3PoolABI from '@uniswap/v3-core/artifacts/contracts/interfaces/IUniswapV3Pool.sol/IUniswapV3Pool.json';
@@ -44,8 +45,9 @@ import {
   MAX_PRIORITY_FEE_PER_GAS,
   GAS_LIMIT
 } from '@/constants/msc';
+import { approveTokenSpending, prepareWETH } from '@/utils/helpers';
 
-const getPoolConstants = async (inputToken: Token, outputToken: Token, poolFee = FeeAmount.MEDIUM): Promise<{
+const getPoolConstantsOnUniswapV3 = async (inputToken: Token, outputToken: Token, poolFee = FeeAmount.MEDIUM): Promise<{
   token0: string
   token1: string
   fee: number
@@ -82,7 +84,7 @@ const getPoolConstants = async (inputToken: Token, outputToken: Token, poolFee =
 };
 
 // RE: https://docs.uniswap.org/sdk/v3/guides/swaps/quoting
-const getQuote = async (inputToken: Token, outputToken: Token, inputAmount: number): Promise<string> => {
+const getQuoteOnUniswapV3 = async (inputToken: Token, outputToken: Token, inputAmount: number): Promise<string> => {
   try {
     const chainId = inputToken.chainId;
   
@@ -91,7 +93,7 @@ const getQuote = async (inputToken: Token, outputToken: Token, inputAmount: numb
       Quoter.abi,
       getProvider(chainId)
     );
-    const poolConstants = await getPoolConstants(inputToken, outputToken);
+    const poolConstants = await getPoolConstantsOnUniswapV3(inputToken, outputToken);
     
     // RE: https://docs.ethers.org/v6/migrating/#migrate-contracts
     // RE: https://github.com/ethers-io/ethers.js/discussions/2367
@@ -116,14 +118,14 @@ const getQuote = async (inputToken: Token, outputToken: Token, inputAmount: numb
 interface PoolInfo {
   token0: string
   token1: string
-  fee: number
-  tickSpacing: number
+  fee: bigint
+  tickSpacing: bigint
   sqrtPriceX96: bigint
   liquidity: bigint
-  tick: number
+  tick: bigint
 }
 
-const getPoolInfo = async (inputToken: Token, outputToken: Token, poolFee = FeeAmount.MEDIUM): Promise<PoolInfo> => {
+const getPoolInfoOnUniswapV3 = async (inputToken: Token, outputToken: Token, poolFee = FeeAmount.MEDIUM): Promise<PoolInfo> => {
   try {
     const chainId = inputToken.chainId;
   
@@ -176,7 +178,7 @@ const getPoolInfo = async (inputToken: Token, outputToken: Token, poolFee = FeeA
   }
 };
 
-const getOutputQuote = async (route: Route<Currency, Currency>, inputAmount: number) => {
+const getOutputQuoteOnUniswapV3 = async (route: Route<Currency, Currency>, inputAmount: number) => {
   try {
     const inputToken = route.input;
     const chainId = route.chainId;
@@ -214,9 +216,10 @@ const getOutputQuote = async (route: Route<Currency, Currency>, inputAmount: num
 
 type TokenTrade = Trade<Token, Token, TradeType>;
 
-const createTrade = async (inputToken: Token, outputToken: Token, inputAmount: number, poolFee = FeeAmount.MEDIUM): Promise<TokenTrade> => {
+const createTradeOnUniswapV3 = async (inputToken: Token, outputToken: Token, inputAmount: number, poolFee = FeeAmount.MEDIUM): Promise<TokenTrade> => {
   try {
-    const poolInfo = await getPoolInfo(inputToken, outputToken, poolFee);
+    const poolInfo = await getPoolInfoOnUniswapV3(inputToken, outputToken, poolFee);
+    console.log('ray : ***** poolInfo => ', poolInfo);
 
     const pool = new Pool(
       inputToken,
@@ -226,6 +229,7 @@ const createTrade = async (inputToken: Token, outputToken: Token, inputAmount: n
       poolInfo.liquidity.toString(),
       Number(poolInfo.tick.toString())
     );
+    console.log('ray : ***** pool => ', pool);
 
     const swapRoute = new Route(
       [pool],
@@ -233,7 +237,8 @@ const createTrade = async (inputToken: Token, outputToken: Token, inputAmount: n
       outputToken
     );
 
-    const amountOut = await getOutputQuote(swapRoute, inputAmount);
+    const amountOut = await getOutputQuoteOnUniswapV3(swapRoute, inputAmount);
+    console.log('ray : ***** JSBI.BigInt(amountOut) => ', JSBI.BigInt(amountOut));
 
     return Trade.createUncheckedTrade({
       route: swapRoute,
@@ -255,23 +260,13 @@ const createTrade = async (inputToken: Token, outputToken: Token, inputAmount: n
   }
 };
 
-const executeTrade = async (
+const executeTradeOnUniswapV3 = async (
   trade: TokenTrade
-): Promise<TransactionReceipt> => {
+): Promise<TransactionReceipt | undefined> => {
   try {
     const chainId = trade.swaps[0].route.chainId;
   
     const wallet = getWallet(chainId);
-  
-    // ray test touch <
-    // Give approval to the router to spend the token
-    // const tokenApproval = await getTokenTransferApproval(CurrentConfig.tokens.in);
-  
-    // Fail if transfer approvals do not go through
-    // if (tokenApproval !== TransactionState.Sent) {
-    //   return TransactionState.Failed
-    // }
-    // ray test touch >
   
     const options: SwapOptions = {
       slippageTolerance: new Percent(50, 10_000), // 50 bips, or 0.50%
@@ -297,9 +292,29 @@ const executeTrade = async (
   }
 };
 
+// ray test touch <
+const buyTokensOnUniswapV3 = async (outputToken: Token, inputAmount: number) => {
+  try {
+    const chainId = outputToken.chainId;
+    const WETH = WETH9[chainId];
+    if (!WETH) {
+      throw new Error('Invalid WETH!');
+    }
+
+    await prepareWETH(inputAmount, chainId);
+
+    await approveTokenSpending(WETH, getUniswapV3SwapRouterContractAddress(chainId));
+
+    const trade = await createTradeOnUniswapV3(WETH, outputToken, inputAmount);
+
+    return await executeTradeOnUniswapV3(trade);
+  } catch (error) {
+    throw new Error(`Thrown at "buyTokensOnUniswapV3": ${error}`);
+  }
+};
+// ray test touch >
+
 export {
-  getQuote,
-  getPoolInfo,
-  createTrade,
-  executeTrade
+  getQuoteOnUniswapV3,
+  buyTokensOnUniswapV3
 };
