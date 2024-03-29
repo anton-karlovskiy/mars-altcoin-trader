@@ -7,9 +7,9 @@ import {
 } from '@uniswap/sdk-core';
 
 import {
-  buyTokens,
-  sellTokens,
-  getTradeInfo
+  buyTokensOnUniswapV2,
+  sellTokensOnUniswapV2,
+  getTradeInfoOnUniswapV2
 } from '@/utils/uniswap-v2';
 import {
   createToken,
@@ -34,13 +34,13 @@ const main = async () => {
     throw new Error('Invalid WETH!');
   }
 
-  const tradeInfo = await getTradeInfo(WETH, DAI, 1000);
-  console.log('tradeInfo:', tradeInfo);
+  const tradeInfoOnUniswapV2 = await getTradeInfoOnUniswapV2(WETH, DAI, 1000);
+  console.log('tradeInfo:', tradeInfoOnUniswapV2);
 
-  // const txReceipt = await buyTokens(WETH, DAI, 0.001, 0.5);
+  // TODO: test with Uniswap V3 stuff
+  // const txReceipt = await buyTokensOnUniswapV2(WETH, DAI, 0.001, 0.5);
   // console.log('TX receipt:', txReceipt);
-
-  // const txReceipt = await sellTokens(DAI, WETH, 0.4, 0.5);
+  // const txReceipt = await sellTokensOnUniswapV2(DAI, WETH, 0.4, 0.5);
   // console.log('TX receipt:', txReceipt);
 
   const quote = await getQuote(WETH_TOKEN, USDC_TOKEN, 1); // TODO: quote for WETH -> USDC is misleading
@@ -50,10 +50,10 @@ const main = async () => {
   const outputToken = USDC_TOKEN;
   const inputAmount = 0.00014;
 
+  // ray test touch <
   const trade = await createTrade(inputToken, outputToken, inputAmount);
   console.log('trade:', trade);
   
-  // ray test touch <
   // const txState = await executeTrade(trade);
   // ray test touch >
 };

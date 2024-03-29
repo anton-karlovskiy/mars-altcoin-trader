@@ -165,7 +165,7 @@ const swap = async (inputToken: Token, outputToken: Token, inputAmount: number, 
   }
 };
 
-const buyTokens = async (inputToken: Token, outputToken: Token, inputAmount: number, slippage: number = 0.5) => {
+const buyTokensOnUniswapV2 = async (inputToken: Token, outputToken: Token, inputAmount: number, slippage: number = 0.5) => {
   try {
     return await swap(
       inputToken,
@@ -179,7 +179,7 @@ const buyTokens = async (inputToken: Token, outputToken: Token, inputAmount: num
   }
 };
 
-const sellTokens = async (inputToken: Token, outputToken: Token, inputAmount: number, slippage: number = 0.5) => {
+const sellTokensOnUniswapV2 = async (inputToken: Token, outputToken: Token, inputAmount: number, slippage: number = 0.5) => {
   try {
     await approveTokenSpending(inputToken, getUniswapV2Router02ContractAddress(inputToken.chainId));
 
@@ -195,7 +195,7 @@ const sellTokens = async (inputToken: Token, outputToken: Token, inputAmount: nu
   }
 };
 
-const getTradeInfo = async (inputToken: Token, outputToken: Token, inputAmount: number, priceSignificantDigits = 6, priceImpactDecimalPlaces = 2) => {
+const getTradeInfoOnUniswapV2 = async (inputToken: Token, outputToken: Token, inputAmount: number, priceSignificantDigits = 6, priceImpactDecimalPlaces = 2) => {
   try {
     const [
       trade,
@@ -230,7 +230,7 @@ export {
   calculateExecutionPrice,
   calculateMidPrice,
   createTrade,
-  buyTokens,
-  sellTokens,
-  getTradeInfo
+  buyTokensOnUniswapV2,
+  sellTokensOnUniswapV2,
+  getTradeInfoOnUniswapV2
 };
