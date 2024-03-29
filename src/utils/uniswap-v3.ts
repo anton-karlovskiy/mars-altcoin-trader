@@ -41,11 +41,9 @@ import {
   getUniswapV3SwapRouterContractAddress
 } from '@/constants/addresses';
 import {
-  MAX_FEE_PER_GAS,
-  MAX_PRIORITY_FEE_PER_GAS,
-  GAS_LIMIT
-} from '@/constants/msc';
-import { approveTokenSpending, prepareWETH } from '@/utils/helpers';
+  approveTokenSpending,
+  prepareWETH
+} from '@/utils/helpers';
 
 const getPoolConstantsOnUniswapV3 = async (inputToken: Token, outputToken: Token, poolFee = FeeAmount.MEDIUM): Promise<{
   token0: string
@@ -258,7 +256,8 @@ const createTradeOnUniswapV3 = async (inputToken: Token, outputToken: Token, inp
 };
 
 const executeTradeOnUniswapV3 = async (
-  trade: TokenTrade
+  trade: TokenTrade,
+  slippage: number
 ): Promise<TransactionReceipt | undefined> => {
   try {
     const chainId = trade.swaps[0].route.chainId;
@@ -266,7 +265,7 @@ const executeTradeOnUniswapV3 = async (
     const wallet = getWallet(chainId);
   
     const options: SwapOptions = {
-      slippageTolerance: new Percent(50, 10_000), // 50 bips, or 0.50%
+      slippageTolerance: new Percent(slippage * 100, 10_000), // 50 bips, or 0.50%
       deadline: Math.floor(Date.now() / 1000) + 60 * 20, // 20 minutes from the current Unix time
       recipient: wallet.address
     };
@@ -286,7 +285,7 @@ const executeTradeOnUniswapV3 = async (
   }
 };
 
-const buyTokensOnUniswapV3 = async (outputToken: Token, inputAmount: number) => {
+const buyTokensOnUniswapV3 = async (outputToken: Token, inputAmount: number, slippage = 0.5) => {
   try {
     const chainId = outputToken.chainId;
     const WETH = WETH9[chainId];
@@ -300,13 +299,34 @@ const buyTokensOnUniswapV3 = async (outputToken: Token, inputAmount: number) => 
 
     const trade = await createTradeOnUniswapV3(WETH, outputToken, inputAmount);
 
-    return await executeTradeOnUniswapV3(trade);
+    return await executeTradeOnUniswapV3(trade, slippage);
   } catch (error) {
     throw new Error(`Thrown at "buyTokensOnUniswapV3": ${error}`);
   }
 };
 
+const sellTokensOnUniswapV3 = async (inputToken: Token, inputAmount: number, slippage = 0.5) => {
+  try {
+    const chainId = inputToken.chainId;
+    const WETH = WETH9[chainId];
+    if (!WETH) {
+      throw new Error('Invalid WETH!');
+    }
+
+    await approveTokenSpending(inputToken, getUniswapV3SwapRouterContractAddress(chainId));
+
+    const trade = await createTradeOnUniswapV3(inputToken, WETH, inputAmount);
+
+    return await executeTradeOnUniswapV3(trade, slippage);
+    
+    // TODO: might want to unwrap WETH
+  } catch (error) {
+    throw new Error(`Thrown at "sellTokensOnUniswapV3": ${error}`);
+  }
+};
+
 export {
   getQuoteOnUniswapV3,
-  buyTokensOnUniswapV3
+  buyTokensOnUniswapV3,
+  sellTokensOnUniswapV3
 };

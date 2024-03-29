@@ -18,7 +18,8 @@ import {
 } from '@/constants/tokens';
 import {
   getQuoteOnUniswapV3,
-  buyTokensOnUniswapV3
+  buyTokensOnUniswapV3,
+  sellTokensOnUniswapV3
 } from '@/utils/uniswap-v3';
 
 const main = async () => {
@@ -41,12 +42,10 @@ const main = async () => {
   const quote = await getQuoteOnUniswapV3(WETH_TOKEN, USDC_TOKEN, 1); // TODO: quote for WETH -> USDC is misleading
   console.log('quote:', quote);
 
-  const inputToken = WETH_TOKEN;
-  const outputToken = USDC_TOKEN;
-  const inputAmount = 0.00001;
-
-  const txReceipt = await buyTokensOnUniswapV3(USDC_TOKEN, inputAmount);
-  console.log('Buy TX receipt on Uniswap V3:', txReceipt);
+  // const txReceipt = await buyTokensOnUniswapV3(USDC_TOKEN, 0.00001, 0.5);
+  // console.log('Buy TX receipt on Uniswap V3:', txReceipt);
+  const txReceipt = await sellTokensOnUniswapV3(USDC_TOKEN, 0.01, 0.5);
+  console.log('Sell TX receipt on Uniswap V3:', txReceipt);
 };
 
 main();

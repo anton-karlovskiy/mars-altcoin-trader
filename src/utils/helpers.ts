@@ -14,12 +14,7 @@ import {
   getWallet,
   sendTransaction
 } from '@/utils/web3';
-import {
-  WETH_ABI,
-  MAX_FEE_PER_GAS,
-  MAX_PRIORITY_FEE_PER_GAS,
-  GAS_LIMIT
-} from '@/constants/msc';
+import { WETH_ABI } from '@/constants/msc';
 import { getWethContractAddress } from '@/constants/addresses';
 import {
   fromReadableAmount,
