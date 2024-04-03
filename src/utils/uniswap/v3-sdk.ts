@@ -31,21 +31,21 @@ import {
   getProvider,
   getWallet,
   sendTransaction
-} from '@/utils/web3';
+} from '@/utils/uniswap/web3';
 import {
   fromReadableAmount,
   toReadableAmount
-} from '@/utils/conversion';
+} from '@/utils/uniswap/conversion';
 import {
   getUniswapV3QuoterContractAddress,
   getUniswapV3PoolFactoryContractAddress,
   getUniswapV3QuoterV2ContractAddress,
   getUniswapV3SwapRouterContractAddress
-} from '@/constants/addresses';
+} from '@/constants/uniswap/addresses';
 import {
   approveTokenSpending,
   prepareWETH
-} from '@/utils/helpers';
+} from '@/utils/uniswap/helpers';
 
 const getPoolConstantsOnUniswapV3 = async (inputToken: Token, outputToken: Token, poolFee = FeeAmount.MEDIUM): Promise<{
   token0: string

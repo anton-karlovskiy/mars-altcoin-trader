@@ -10,18 +10,18 @@ import {
   buyTokensOnUniswapV2,
   sellTokensOnUniswapV2,
   getTradeInfoOnUniswapV2
-} from '@/utils/uniswap-v2';
-import { createToken } from '@/utils/helpers';
+} from '@/utils/uniswap/v2-sdk';
+import { createToken } from '@/utils/uniswap/helpers';
 import {
   USDC_TOKEN,
   WETH_TOKEN
-} from '@/constants/tokens';
+} from '@/constants/uniswap/tokens';
 import {
   getQuoteOnUniswapV3,
   buyTokensOnUniswapV3,
   sellTokensOnUniswapV3,
   getTradeInfoOnUniswapV3
-} from '@/utils/uniswap-v3';
+} from '@/utils/uniswap/v3-sdk';
 
 const main = async () => {
   const targetChainId = ChainId.MAINNET;

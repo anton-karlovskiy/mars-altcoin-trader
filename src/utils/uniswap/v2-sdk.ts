@@ -20,14 +20,14 @@ import {
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json';
 import IUniswapV2Router02 from '@uniswap/v2-periphery/build/IUniswapV2Router02.json';
 
-import { getUniswapV2Router02ContractAddress } from '@/constants/addresses';
+import { getUniswapV2Router02ContractAddress } from '@/constants/uniswap/addresses';
 import {
   getProvider,
   getWallet,
   sendTransaction
-} from '@/utils/web3';
-import { fromReadableAmount } from '@/utils/conversion';
-import { approveTokenSpending } from '@/utils/helpers';
+} from '@/utils/uniswap/web3';
+import { fromReadableAmount } from '@/utils/uniswap/conversion';
+import { approveTokenSpending } from '@/utils/uniswap/helpers';
 
 const createPairOnUniswapV2 = async (tokenA: Token, tokenB: Token) => {
   try {

@@ -13,13 +13,13 @@ import {
   getProvider,
   getWallet,
   sendTransaction
-} from '@/utils/web3';
-import { WETH_ABI } from '@/constants/msc';
-import { getWethContractAddress } from '@/constants/addresses';
+} from '@/utils/uniswap/web3';
+import { WETH_ABI } from '@/constants/uniswap/msc';
+import { getWethContractAddress } from '@/constants/uniswap/addresses';
 import {
   fromReadableAmount,
   toReadableAmount
-} from '@/utils/conversion';
+} from '@/utils/uniswap/conversion';
 
 const getDecimals = async (tokenAddress: string, chainId: ChainId) => {
   try {
