@@ -35,10 +35,16 @@ e.g. UNI/ETH
 - [uniswap](https://github.com/sjuanati/uniswap)
 - [All-Chains-EthereumX-Sniping-Bot](https://github.com/Abregud/All-Chains-EthereumX-Sniping-Bot)
 - [crypto-sniper](https://github.com/zookyy/crypto-sniper)
-- [simple-uniswap-sdk](https://github.com/joshstevens19/simple-uniswap-sdk)
-- [v2-sdk](https://github.com/Uniswap/v2-sdk)
 - [Uniswap: Universal Router: ETH to USDC](https://gist.github.com/BlockmanCodes/52ede9384fd774ed18c5dea5912fbe3d)
+
+- [simple-uniswap-sdk](https://github.com/joshstevens19/simple-uniswap-sdk)
+- [Uniswap V2 SDK](https://github.com/Uniswap/v2-sdk)
+- [Uniswap V3 SDK](https://github.com/Uniswap/v3-sdk)
 - [universal-router-sdk](https://github.com/Uniswap/universal-router-sdk)
+- [Raydium SDK](https://github.com/raydium-io/raydium-sdk)
+
+- [Uniswap/examples/v3-sdk](https://github.com/Uniswap/examples/tree/main/v3-sdk)
+- [RAYDIUM SDK V1 demo](https://github.com/raydium-io/raydium-sdk-V1-demo)
 
 - [Decentralized-Exchange-Trading-Scripts](https://github.com/henrytirla/Decentralized-Exchange-Trading-Scripts)
 - [ethereum-abi-types-generator](https://github.com/joshstevens19/ethereum-abi-types-generator)

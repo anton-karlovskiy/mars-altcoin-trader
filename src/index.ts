@@ -22,6 +22,9 @@ import {
   sellTokensOnUniswapV3,
   getTradeInfoOnUniswapV3
 } from '@/utils/uniswap/v3-sdk';
+// ray test touch <
+import { parsePoolInfo } from '@/utils/radium/sdk';
+// ray test touch >
 
 const main = async () => {
   const targetChainId = ChainId.MAINNET;
@@ -50,6 +53,10 @@ const main = async () => {
 
   const tradeInfoOnUniswapV3 = await getTradeInfoOnUniswapV3(WETH, DAI, 1000);
   console.log('Trade info on Uniswap V3:', tradeInfoOnUniswapV3);
+
+  // ray test touch <
+  parsePoolInfo();
+  // ray test touch >
 };
 
 main();
