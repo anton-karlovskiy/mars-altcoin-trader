@@ -1,3 +1,5 @@
+// RE: https://docs.uniswap.org/sdk/v3/overview
+
 import {
   Contract,
   AbiCoder,
@@ -214,6 +216,7 @@ const getOutputQuoteOnUniswapV3 = async (route: Route<Currency, Currency>, input
 
 type TokenTrade = Trade<Token, Token, TradeType>;
 
+// RE: https://docs.uniswap.org/sdk/v3/guides/swaps/trading
 const createTradeOnUniswapV3 = async (inputToken: Token, outputToken: Token, inputAmount: number, poolFee = FeeAmount.MEDIUM): Promise<TokenTrade> => {
   try {
     const poolInfo = await getPoolInfoOnUniswapV3(inputToken, outputToken, poolFee);

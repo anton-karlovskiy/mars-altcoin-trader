@@ -1,3 +1,5 @@
+// RE: https://docs.uniswap.org/sdk/v2/overview
+
 import {
   Contract,
   ContractTransaction,
@@ -115,6 +117,7 @@ const swapOnUniswapV2 = async (inputToken: Token, outputToken: Token, inputAmoun
 
     const uniswapV2Router02Contract = new Contract(getUniswapV2Router02ContractAddress(chainId), IUniswapV2Router02.abi, wallet);
 
+    // RE: https://docs.uniswap.org/sdk/core/reference/classes/Percent
     const slippageTolerance = new Percent(slippage * 100, '10000'); // 50 bips, or 0.50%
 
     const amountOutMin = trade.minimumAmountOut(slippageTolerance).toExact();
