@@ -11,6 +11,7 @@
 - Supported DEXes
   * Uniswap v2
   * Uniswap v3
+  * Radium
   * Pancakeswap
 
 - Strategies
@@ -23,10 +24,10 @@ e.g. UNI/ETH
 
 ## Assumptions (proof of concept)
 
-- Ethereum mainnet
-- Uniswap V2 & Uniswap V3
+- Ethereum mainnet & Solana mainnet
+- Uniswap V2 & Uniswap V3 & Radium
 - Routes consist of only one pair (direct pair).
-- Token/ETH pools
+- Token/Native (ETH | SOL) pools
 
 ### Relevant open-source projects
 
