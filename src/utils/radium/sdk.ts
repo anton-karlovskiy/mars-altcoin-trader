@@ -24,6 +24,16 @@ import {
 import { Wallet } from '@coral-xyz/anchor';
 import bs58 from 'bs58';
 
+import {
+  SOLANA_NODE_JSON_RPC_ENDPOINT,
+  SOLANA_WALLET_ACCOUNT_PRIVATE_KEY
+} from '@/config/keys';
+import {
+  SWAP_MAX_LAMPORTS,
+  SWAP_LIQUIDITY_FILE,
+  SWAP_MAX_RETRIES
+} from '@/config/radium/swap';
+
 /**
  * Class representing a Raydium Swap operation.
  */
@@ -325,6 +335,74 @@ class RaydiumSwap {
   }
 }
 
+const swapOnRadium = async (
+  inputTokenAddress: string,
+  outputTokenAddress: string,
+  inputAmount: number,
+  executeSwap = false // Send tx when true, simulate tx when false
+) => {
+  try {
+    /**
+     * The RaydiumSwap instance for handling swaps.
+     */
+    const raydiumSwap = new RaydiumSwap(SOLANA_NODE_JSON_RPC_ENDPOINT, SOLANA_WALLET_ACCOUNT_PRIVATE_KEY);
+    console.log('Raydium swap initialized.');
+    console.log(`Swapping ${inputAmount} of ${inputTokenAddress} for ${outputTokenAddress}...`);
+
+    /**
+     * Load pool keys from the Raydium API to enable finding pool information.
+     */
+    await raydiumSwap.loadPoolKeys(SWAP_LIQUIDITY_FILE);
+    console.log(`Loaded pool keys.`);
+
+    /**
+     * Find pool information for the given token pair.
+     */
+    const poolInfo = raydiumSwap.findPoolInfoForTokens(inputTokenAddress, outputTokenAddress);
+    console.log('Found pool info:', poolInfo);
+
+    if (!poolInfo) {
+      throw new Error(`No pool info thrown at "swap": ${poolInfo}`);
+    }
+
+    /**
+     * Prepare the swap transaction with the given parameters.
+     */
+    const tx = await raydiumSwap.getSwapTransaction(
+      outputTokenAddress,
+      inputAmount,
+      poolInfo,
+      SWAP_MAX_LAMPORTS
+    );
+
+    /**
+     * Depending on the configuration, execute or simulate the swap.
+     */
+    if (executeSwap) {
+      /**
+       * Send the transaction to the network and log the transaction ID.
+       */
+      const txId = await raydiumSwap.sendVersionedTransaction(tx as VersionedTransaction, SWAP_MAX_RETRIES);
+
+      console.log('Swap TX on Radium:', `https://solscan.io/tx/${txId}`);
+
+      return txId;
+    } else {
+      /**
+       * Simulate the transaction and log the result.
+       */
+      const simRes = await raydiumSwap.simulateVersionedTransaction(tx as VersionedTransaction);
+
+      console.log('Simulation result on Radium:', simRes);
+
+      return simRes;
+    }
+  } catch (error) {
+    throw new Error(`Thrown at "swap": ${error}`);
+  }
+};
+
 export {
-  RaydiumSwap
+  RaydiumSwap,
+  swapOnRadium
 };
