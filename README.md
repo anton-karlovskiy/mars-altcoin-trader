@@ -45,6 +45,7 @@ e.g. UNI/ETH
 
 - [Uniswap/examples/v3-sdk](https://github.com/Uniswap/examples/tree/main/v3-sdk)
 - [RAYDIUM SDK V1 demo](https://github.com/raydium-io/raydium-sdk-V1-demo)
+- [Raydium SDK Swap Example](https://github.com/chainstacklabs/raydium-sdk-swap-example-typescript)
 
 - [Decentralized-Exchange-Trading-Scripts](https://github.com/henrytirla/Decentralized-Exchange-Trading-Scripts)
 - [ethereum-abi-types-generator](https://github.com/joshstevens19/ethereum-abi-types-generator)
@@ -61,6 +62,7 @@ e.g. UNI/ETH
 - [Uniswap v3: Liquidity and Invariants 101](https://medium.com/blockapex/uniswap-v3-liquidity-and-invariants-101-cb956816d62d)
 - [Multi hopping quote and swap Uniswap V3](https://medium.com/@arian.web3developer/multi-hopping-quote-and-swap-uniswap-v3-606a2c0ad197)
 - [Single Swaps](https://docs.uniswap.org/contracts/v3/guides/swaps/single-swaps)
+- [Solana: How to perform token swaps using the Raydium SDK](https://docs.chainstack.com/docs/solana-how-to-perform-token-swaps-using-the-raydium-sdk)
 
 ### TODOs
 

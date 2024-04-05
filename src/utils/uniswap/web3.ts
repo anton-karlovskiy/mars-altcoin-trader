@@ -9,7 +9,7 @@ import { ChainId } from '@uniswap/sdk-core';
 
 import {
   INFURA_API_KEY,
-  WALLET_ACCOUNT_PRIVATE_KEY
+  METAMASK_WALLET_ACCOUNT_PRIVATE_KEY
 } from '@/config/keys';
 
 const wallets: { [chainId: string]: Wallet } = {};
@@ -106,13 +106,13 @@ const createProvider = (chainId: ChainId) => {
 };
 
 const createWallet = (chainId: ChainId): Wallet => {
-  if (!WALLET_ACCOUNT_PRIVATE_KEY) {
+  if (!METAMASK_WALLET_ACCOUNT_PRIVATE_KEY) {
     throw new Error('Wallet account private key is undefined!');
   }
 
   const provider = getProvider(chainId);
 
-  return new Wallet(WALLET_ACCOUNT_PRIVATE_KEY, provider);
+  return new Wallet(METAMASK_WALLET_ACCOUNT_PRIVATE_KEY, provider);
 };
 
 export {
