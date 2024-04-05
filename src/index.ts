@@ -29,10 +29,7 @@ import {
   getTradeInfoOnUniswapV3
 } from '@/utils/uniswap/v3-sdk';
 // ray test touch <
-import {
-  parsePoolInfo,
-  swapConfig
-} from '@/utils/radium/test';
+import { swapConfig } from '@/utils/radium/test';
 import { RaydiumSwap } from '@/utils/radium/sdk';
 import {
   SOLANA_NODE_JSON_RPC_ENDPOINT,
@@ -69,10 +66,6 @@ const main = async () => {
   console.log('Trade info on Uniswap V3:', tradeInfoOnUniswapV3);
 
   // ray test touch <
-  parsePoolInfo();
-  // ray test touch >
-
-  // ray test touch <
   /**
    * The RaydiumSwap instance for handling swaps.
    */
@@ -103,7 +96,7 @@ const main = async () => {
     swapConfig.tokenBAddress,
     swapConfig.tokenAAmount,
     poolInfo,
-    swapConfig.maxLamports, 
+    swapConfig.maxLamports,
     swapConfig.useVersionedTransaction,
     swapConfig.direction
   );
