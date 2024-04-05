@@ -113,9 +113,9 @@ class RaydiumSwap {
     // fromToken: string,
     amount: number,
     poolKeys: LiquidityPoolKeys,
-    maxLamports: number = 100000,
+    maxLamports: number = 100000, // RE: https://docs.chainstack.com/docs/solana-how-to-perform-token-swaps-using-the-raydium-sdk#maxlamports
     useVersionedTransaction = true,
-    fixedSide: 'in' | 'out' = 'in'
+    fixedSide: 'in' | 'out' = 'in' // RE: https://docs.chainstack.com/docs/solana-how-to-perform-token-swaps-using-the-raydium-sdk#direction
   ): Promise<Transaction | VersionedTransaction> {
     try {
       const directionIn = poolKeys.quoteMint.toString() == toToken;

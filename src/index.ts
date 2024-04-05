@@ -96,9 +96,7 @@ const main = async () => {
     swapConfig.tokenBAddress,
     swapConfig.tokenAAmount,
     poolInfo,
-    swapConfig.maxLamports,
-    swapConfig.useVersionedTransaction,
-    swapConfig.direction
+    swapConfig.maxLamports
   );
 
   /**
@@ -108,9 +106,7 @@ const main = async () => {
     /**
      * Send the transaction to the network and log the transaction ID.
      */
-    const txId = swapConfig.useVersionedTransaction
-      ? await raydiumSwap.sendVersionedTransaction(tx as VersionedTransaction, swapConfig.maxRetries)
-      : await raydiumSwap.sendLegacyTransaction(tx as Transaction, swapConfig.maxRetries);
+    const txId = await raydiumSwap.sendVersionedTransaction(tx as VersionedTransaction, swapConfig.maxRetries);
 
     console.log(`https://solscan.io/tx/${txId}`);
 
@@ -118,9 +114,7 @@ const main = async () => {
     /**
      * Simulate the transaction and log the result.
      */
-    const simRes = swapConfig.useVersionedTransaction
-      ? await raydiumSwap.simulateVersionedTransaction(tx as VersionedTransaction)
-      : await raydiumSwap.simulateLegacyTransaction(tx as Transaction);
+    const simRes = await raydiumSwap.simulateVersionedTransaction(tx as VersionedTransaction);
 
     console.log(simRes);
   }
