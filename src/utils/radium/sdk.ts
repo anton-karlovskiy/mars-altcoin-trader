@@ -1,101 +1,330 @@
-// ray test touch <
-import { Connection, PublicKey } from "@solana/web3.js";
-// import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+// RE: https://docs.chainstack.com/docs/solana-how-to-perform-token-swaps-using-the-raydium-sdk#the-raydiumswapts-file
+// RE: https://github.com/chainstacklabs/raydium-sdk-swap-example-typescript
+
 import {
-  // TokenAccount,
-  // SPL_ACCOUNT_LAYOUT,
-  LIQUIDITY_STATE_LAYOUT_V4,
-} from "@raydium-io/raydium-sdk";
-// import { OpenOrders } from "@project-serum/serum";
-import BN from "bn.js";
+  Connection,
+  PublicKey,
+  Keypair,
+  Transaction,
+  VersionedTransaction,
+  TransactionMessage
+} from '@solana/web3.js';
+import {
+  Liquidity,
+  LiquidityPoolKeys,
+  jsonInfo2PoolKeys,
+  LiquidityPoolJsonInfo,
+  TokenAccount,
+  Token,
+  TokenAmount,
+  TOKEN_PROGRAM_ID,
+  Percent,
+  SPL_ACCOUNT_LAYOUT
+} from '@raydium-io/raydium-sdk';
+import { Wallet } from '@coral-xyz/anchor';
+import bs58 from 'bs58';
 
-import { SOLANA_NODE_JSON_RPC_ENDPOINT } from '@/config/keys';
+/**
+ * Class representing a Raydium Swap operation.
+ */
+class RaydiumSwap {
+  allPoolKeysJson: LiquidityPoolJsonInfo[] = [];
+  connection: Connection;
+  wallet: Wallet;
 
-// async function getTokenAccounts(connection: Connection, owner: PublicKey) {
-//   const tokenResp = await connection.getTokenAccountsByOwner(owner, {
-//     programId: TOKEN_PROGRAM_ID,
-//   });
-//   const accounts: TokenAccount[] = [];
-//   for (const { pubkey, account } of tokenResp.value) {
-//     accounts.push({
-//       pubkey,
-//       accountInfo: SPL_ACCOUNT_LAYOUT.decode(account.data),
-//     });
-//   }
-//   return accounts;
-// }
+  /**
+   * Creates a RaydiumSwap instance.
+   * @param {string} RPC_URL - The RPC URL for connecting to the Solana blockchain.
+   * @param {string} WALLET_PRIVATE_KEY - The private key of the wallet in base58 format.
+   */
+  constructor(RPC_URL: string, WALLET_PRIVATE_KEY: string) {
+    this.connection = new Connection(RPC_URL, { commitment: 'confirmed' });
+    this.wallet = new Wallet(Keypair.fromSecretKey(Uint8Array.from(bs58.decode(WALLET_PRIVATE_KEY))));
+  }
 
-// raydium pool id can get from api: https://api.raydium.io/v2/sdk/liquidity/mainnet.json
-const SOL_USDC_POOL_ID = "58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2";
-// const OPENBOOK_PROGRAM_ID = new PublicKey(
-//   "srmqPvymJeFKQ4zGQed1GFppgkRHL9kaELCbyksJtPX"
-// );
+  /**
+   * Loads all the pool keys available from a JSON configuration file.
+   * @async
+   * @returns {Promise<void>}
+   */
+  async loadPoolKeys(liquidityFile: string) {
+    try {
+      const liquidityJsonResp = await fetch(liquidityFile);
+      if (!liquidityJsonResp.ok) return;
+      const liquidityJson = (await liquidityJsonResp.json()) as { official: any; unOfficial: any };
+      const allPoolKeysJson = [...(liquidityJson?.official ?? []), ...(liquidityJson?.unOfficial ?? [])];
+  
+      this.allPoolKeysJson = allPoolKeysJson;
+    } catch (error) {
+      throw new Error(`Thrown at "loadPoolKeys": ${error}`);
+    }
+  }
 
-export async function parsePoolInfo() {
-  const connection = new Connection(SOLANA_NODE_JSON_RPC_ENDPOINT, "confirmed");
-  // const owner = new PublicKey("VnxDzsZ7chE88e9rB6UKztCt2HUwrkgCTx8WieWf5mM");
+  /**
+   * Finds pool information for the given token pair.
+   * @param {string} mintA - The mint address of the first token.
+   * @param {string} mintB - The mint address of the second token.
+   * @returns {LiquidityPoolKeys | null} The liquidity pool keys if found, otherwise null.
+   */
+  findPoolInfoForTokens(mintA: string, mintB: string) {
+    const poolData = this.allPoolKeysJson.find(
+      (index) => (index.baseMint === mintA && index.quoteMint === mintB) || (index.baseMint === mintB && index.quoteMint === mintA)
+    );
 
-  // const tokenAccounts = await getTokenAccounts(connection, owner);
+    if (!poolData) return null;
 
-  // example to get pool info
-  const info = await connection.getAccountInfo(new PublicKey(SOL_USDC_POOL_ID));
-  if (!info) return;
+    return jsonInfo2PoolKeys(poolData) as LiquidityPoolKeys;
+  }
 
-  const poolState = LIQUIDITY_STATE_LAYOUT_V4.decode(info.data);
-  // const openOrders = await OpenOrders.load(
-  //   connection,
-  //   poolState.openOrders,
-  //   OPENBOOK_PROGRAM_ID // OPENBOOK_PROGRAM_ID(marketProgramId) of each pool can get from api: https://api.raydium.io/v2/sdk/liquidity/mainnet.json
-  // );
+  /**
+   * Retrieves token accounts owned by the wallet.
+   * @async
+   * @returns {Promise<TokenAccount[]>} An array of token accounts.
+   */
+  async getOwnerTokenAccounts() {
+    try {
+      const walletTokenAccount = await this.connection.getTokenAccountsByOwner(this.wallet.publicKey, {
+        programId: TOKEN_PROGRAM_ID
+      });
+  
+      return walletTokenAccount.value.map((item) => ({
+        pubkey: item.pubkey,
+        programId: item.account.owner,
+        accountInfo: SPL_ACCOUNT_LAYOUT.decode(item.account.data)
+      }));
+    } catch (error) {
+      throw new Error(`Thrown at "getOwnerTokenAccounts": ${error}`);
+    }
+  }
 
-  // const baseDecimal = 10 ** poolState.baseDecimal.toNumber(); // e.g. 10 ^ 6
-  // const quoteDecimal = 10 ** poolState.quoteDecimal.toNumber();
+  /**
+   * Builds a swap transaction.
+   * @async
+   * @param {string} toToken - The mint address of the token to receive.
+   * @param {number} amount - The amount of the token to swap.
+   * @param {LiquidityPoolKeys} poolKeys - The liquidity pool keys.
+   * @param {number} [maxLamports=100000] - The maximum lamports to use for transaction fees.
+   * @param {boolean} [useVersionedTransaction=true] - Whether to use a versioned transaction.
+   * @param {'in' | 'out'} [fixedSide='in'] - The fixed side of the swap ('in' or 'out').
+   * @returns {Promise<Transaction | VersionedTransaction>} The constructed swap transaction.
+   */
+  async getSwapTransaction(
+    toToken: string,
+    // fromToken: string,
+    amount: number,
+    poolKeys: LiquidityPoolKeys,
+    maxLamports: number = 100000,
+    useVersionedTransaction = true,
+    fixedSide: 'in' | 'out' = 'in'
+  ): Promise<Transaction | VersionedTransaction> {
+    try {
+      const directionIn = poolKeys.quoteMint.toString() == toToken;
+      const {
+        minAmountOut,
+        amountIn
+      } = await this.calcAmountOut(poolKeys, amount, directionIn);
+      console.log({ minAmountOut, amountIn });
+      const userTokenAccounts = await this.getOwnerTokenAccounts();
+      const swapTransaction = await Liquidity.makeSwapInstructionSimple({
+        connection: this.connection,
+        makeTxVersion: useVersionedTransaction ? 0 : 1,
+        poolKeys: {
+          ...poolKeys
+        },
+        userKeys: {
+          tokenAccounts: userTokenAccounts,
+          owner: this.wallet.publicKey
+        },
+        amountIn: amountIn,
+        amountOut: minAmountOut,
+        fixedSide: fixedSide,
+        config: {
+          bypassAssociatedCheck: false
+        },
+        computeBudgetConfig: {
+          microLamports: maxLamports
+        }
+      });
+  
+      const recentBlockhashForSwap = await this.connection.getLatestBlockhash();
+      const instructions = swapTransaction.innerTransactions[0].instructions.filter(Boolean);
+  
+      if (useVersionedTransaction) {
+        const versionedTransaction = new VersionedTransaction(
+          new TransactionMessage({
+            payerKey: this.wallet.publicKey,
+            recentBlockhash: recentBlockhashForSwap.blockhash,
+            instructions: instructions
+          }).compileToV0Message()
+        );
+  
+        versionedTransaction.sign([this.wallet.payer]);
+  
+        return versionedTransaction;
+      }
+  
+      const legacyTransaction = new Transaction({
+        blockhash: recentBlockhashForSwap.blockhash,
+        lastValidBlockHeight: recentBlockhashForSwap.lastValidBlockHeight,
+        feePayer: this.wallet.publicKey
+      });
+  
+      legacyTransaction.add(...instructions);
+  
+      return legacyTransaction;
+    } catch (error) {
+      throw new Error(`Thrown at "getSwapTransaction": ${error}`);
+    }
+  }
 
-  const baseTokenAmount = await connection.getTokenAccountBalance(
-    poolState.baseVault
-  );
-  const quoteTokenAmount = await connection.getTokenAccountBalance(
-    poolState.quoteVault
-  );
+  /**
+   * Sends a legacy transaction.
+   * @async
+   * @param {Transaction} tx - The transaction to send.
+   * @returns {Promise<string>} The transaction ID.
+   */
+  async sendLegacyTransaction(tx: Transaction, maxRetries?: number) {
+    try {
+      const txId = await this.connection.sendTransaction(tx, [this.wallet.payer], {
+        skipPreflight: true,
+        maxRetries: maxRetries
+      });
+  
+      return txId;
+    } catch (error) {
+      throw new Error(`Thrown at "sendLegacyTransaction": ${error}`);
+    }
+  }
 
-  // const basePnl = poolState.baseNeedTakePnl.toNumber() / baseDecimal;
-  // const quotePnl = poolState.quoteNeedTakePnl.toNumber() / quoteDecimal;
+  /**
+   * Sends a versioned transaction.
+   * @async
+   * @param {VersionedTransaction} tx - The versioned transaction to send.
+   * @returns {Promise<string>} The transaction ID.
+   */
+  async sendVersionedTransaction(tx: VersionedTransaction, maxRetries?: number) {
+    try {
+      const txId = await this.connection.sendTransaction(tx, {
+        skipPreflight: true,
+        maxRetries: maxRetries
+      });
+  
+      return txId;
+    } catch (error) {
+      throw new Error(`Thrown at "sendVersionedTransaction": ${error}`);
+    }
+  }
 
-  // const openOrdersBaseTokenTotal =
-  //   openOrders.baseTokenTotal.toNumber() / baseDecimal;
-  // const openOrdersQuoteTokenTotal =
-  //   openOrders.quoteTokenTotal.toNumber() / quoteDecimal;
+  /**
+   * Simulates a versioned transaction.
+   * @async
+   * @param {VersionedTransaction} tx - The versioned transaction to simulate.
+   * @returns {Promise<any>} The simulation result.
+   */
+  async simulateLegacyTransaction(tx: Transaction) {
+    try {
+      const txId = await this.connection.simulateTransaction(tx, [this.wallet.payer]);
+  
+      return txId;
+    } catch (error) {
+      throw new Error(`Thrown at "simulateLegacyTransaction": ${error}`);
+    }
+  }
 
-  // const base =
-  //   (baseTokenAmount.value?.uiAmount || 0) + openOrdersBaseTokenTotal - basePnl;
-  // const quote =
-  //   (quoteTokenAmount.value?.uiAmount || 0) +
-  //   openOrdersQuoteTokenTotal -
-  //   quotePnl;
+  /**
+   * Simulates a versioned transaction.
+   * @async
+   * @param {VersionedTransaction} tx - The versioned transaction to simulate.
+   * @returns {Promise<any>} The simulation result.
+   */
+  async simulateVersionedTransaction(tx: VersionedTransaction) {
+    try {
+      const txId = await this.connection.simulateTransaction(tx);
+  
+      return txId;
+    } catch (error) {
+      throw new Error(`Thrown at "simulateVersionedTransaction": ${error}`);
+    }
+  }
 
-  const denominator = new BN(10).pow(poolState.baseDecimal);
+  /**
+   * Gets a token account by owner and mint address.
+   * @param {PublicKey} mint - The mint address of the token.
+   * @returns {TokenAccount} The token account.
+   */
+  getTokenAccountByOwnerAndMint(mint: PublicKey) {
+    return {
+      programId: TOKEN_PROGRAM_ID,
+      pubkey: PublicKey.default,
+      accountInfo: {
+        mint: mint,
+        amount: 0
+      }
+    } as unknown as TokenAccount;
+  }
 
-  // const addedLpAccount = tokenAccounts.find((a) =>
-  //   a.accountInfo.mint.equals(poolState.lpMint)
-  // );
-
-  console.log(
-    "SOL_USDC pool info:",
-    // "pool total base " + base,
-    // "pool total quote " + quote,
-
-    "base vault balance " + baseTokenAmount.value.uiAmount,
-    "quote vault balance " + quoteTokenAmount.value.uiAmount,
-
-    // "base tokens in openorders " + openOrdersBaseTokenTotal,
-    // "quote tokens in openorders  " + openOrdersQuoteTokenTotal,
-
-    "base token decimals " + poolState.baseDecimal.toNumber(),
-    "quote token decimals " + poolState.quoteDecimal.toNumber(),
-    "total lp " + poolState.lpReserve.div(denominator).toString(),
-
-    // "addedLpAmount " +
-    //   (addedLpAccount?.accountInfo.amount.toNumber() || 0) / baseDecimal
-  );
+  /**
+   * Calculates the amount out for a swap.
+   * @async
+   * @param {LiquidityPoolKeys} poolKeys - The liquidity pool keys.
+   * @param {number} rawAmountIn - The raw amount of the input token.
+   * @param {boolean} swapInDirection - The direction of the swap (true for in, false for out).
+   * @returns {Promise<Object>} The swap calculation result.
+   */
+  async calcAmountOut(poolKeys: LiquidityPoolKeys, rawAmountIn: number, swapInDirection: boolean) {
+    try {
+      const poolInfo = await Liquidity.fetchInfo({
+        connection: this.connection,
+        poolKeys
+      });
+  
+      let currencyInMint = poolKeys.baseMint;
+      let currencyInDecimals = poolInfo.baseDecimals;
+      let currencyOutMint = poolKeys.quoteMint;
+      let currencyOutDecimals = poolInfo.quoteDecimals;
+  
+      if (!swapInDirection) {
+        currencyInMint = poolKeys.quoteMint;
+        currencyInDecimals = poolInfo.quoteDecimals;
+        currencyOutMint = poolKeys.baseMint;
+        currencyOutDecimals = poolInfo.baseDecimals;
+      }
+  
+      const currencyIn = new Token(TOKEN_PROGRAM_ID, currencyInMint, currencyInDecimals);
+      const amountIn = new TokenAmount(currencyIn, rawAmountIn, false);
+      const currencyOut = new Token(TOKEN_PROGRAM_ID, currencyOutMint, currencyOutDecimals);
+      const slippage = new Percent(5, 100); // 5% slippage
+  
+      const {
+        amountOut,
+        minAmountOut,
+        currentPrice,
+        executionPrice,
+        priceImpact,
+        fee
+      } = Liquidity.computeAmountOut({
+        poolKeys,
+        poolInfo,
+        amountIn,
+        currencyOut,
+        slippage
+      })
+  
+      return {
+        amountIn,
+        amountOut,
+        minAmountOut,
+        currentPrice,
+        executionPrice,
+        priceImpact,
+        fee
+      }
+    } catch (error) {
+      throw new Error(`Thrown at "calcAmountOut": ${error}`);
+    }
+  }
 }
-// ray test touch >
+
+export {
+  RaydiumSwap
+};
