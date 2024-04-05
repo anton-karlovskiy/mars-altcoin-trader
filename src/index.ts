@@ -6,10 +6,7 @@ import {
   WETH9
 } from '@uniswap/sdk-core';
 // ray test touch <
-import {
-  Transaction,
-  VersionedTransaction
-} from '@solana/web3.js';
+import { VersionedTransaction } from '@solana/web3.js';
 // ray test touch >
 
 import {
@@ -22,6 +19,12 @@ import {
   USDC_TOKEN,
   WETH_TOKEN
 } from '@/constants/uniswap/tokens';
+// ray test touch <
+import {
+  SOL_ADDRESS,
+  USDC_ADDRESS
+} from '@/constants/radium/tokens';
+// ray test touch >
 import {
   getQuoteOnUniswapV3,
   buyTokensOnUniswapV3,
@@ -29,12 +32,17 @@ import {
   getTradeInfoOnUniswapV3
 } from '@/utils/uniswap/v3-sdk';
 // ray test touch <
-import { swapConfig } from '@/utils/radium/test';
 import { RaydiumSwap } from '@/utils/radium/sdk';
 import {
   SOLANA_NODE_JSON_RPC_ENDPOINT,
   SOLANA_WALLET_ACCOUNT_PRIVATE_KEY
 } from '@/config/keys';
+import {
+  SWAP_MAX_LAMPORTS,
+  SWAP_LIQUIDITY_FILE,
+  SWAP_MAX_RETRIES,
+  SWAP_EXECUTE
+} from '@/config/radium/swap';
 // ray test touch >
 
 const main = async () => {
@@ -66,23 +74,27 @@ const main = async () => {
   console.log('Trade info on Uniswap V3:', tradeInfoOnUniswapV3);
 
   // ray test touch <
+  const inputTokenAddress = SOL_ADDRESS;
+  const outputTokenAddress = USDC_ADDRESS;
+  const inputAmount = 0.01;
+
   /**
    * The RaydiumSwap instance for handling swaps.
    */
   const raydiumSwap = new RaydiumSwap(SOLANA_NODE_JSON_RPC_ENDPOINT, SOLANA_WALLET_ACCOUNT_PRIVATE_KEY);
   console.log(`Raydium swap initialized`);
-  console.log(`Swapping ${swapConfig.tokenAAmount} of ${swapConfig.tokenAAddress} for ${swapConfig.tokenBAddress}...`);
+  console.log(`Swapping ${inputAmount} of ${inputTokenAddress} for ${outputTokenAddress}...`);
 
   /**
    * Load pool keys from the Raydium API to enable finding pool information.
    */
-  await raydiumSwap.loadPoolKeys(swapConfig.liquidityFile);
+  await raydiumSwap.loadPoolKeys(SWAP_LIQUIDITY_FILE);
   console.log(`Loaded pool keys`);
 
   /**
    * Find pool information for the given token pair.
    */
-  const poolInfo = raydiumSwap.findPoolInfoForTokens(swapConfig.tokenAAddress, swapConfig.tokenBAddress);
+  const poolInfo = raydiumSwap.findPoolInfoForTokens(inputTokenAddress, outputTokenAddress);
   console.log('Found pool info:', poolInfo);
 
   if (!poolInfo) {
@@ -93,20 +105,20 @@ const main = async () => {
    * Prepare the swap transaction with the given parameters.
    */
   const tx = await raydiumSwap.getSwapTransaction(
-    swapConfig.tokenBAddress,
-    swapConfig.tokenAAmount,
+    outputTokenAddress,
+    inputAmount,
     poolInfo,
-    swapConfig.maxLamports
+    SWAP_MAX_LAMPORTS
   );
 
   /**
    * Depending on the configuration, execute or simulate the swap.
    */
-  if (swapConfig.executeSwap) {
+  if (SWAP_EXECUTE) {
     /**
      * Send the transaction to the network and log the transaction ID.
      */
-    const txId = await raydiumSwap.sendVersionedTransaction(tx as VersionedTransaction, swapConfig.maxRetries);
+    const txId = await raydiumSwap.sendVersionedTransaction(tx as VersionedTransaction, SWAP_MAX_RETRIES);
 
     console.log(`https://solscan.io/tx/${txId}`);
 

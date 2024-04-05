@@ -75,11 +75,20 @@ const getWethContractAddress = (chainId: ChainId) => {
   }
 };
 
+const WETH_ABI = [
+  // Wrap ETH
+  'function deposit() payable',
+
+  // Unwrap ETH
+  'function withdraw(uint wad) public',
+];
+
 export {
   getUniswapV2Router02ContractAddress,
   getUniswapV3PoolFactoryContractAddress,
   getUniswapV3QuoterContractAddress,
   getUniswapV3QuoterV2ContractAddress,
   getUniswapV3SwapRouterContractAddress,
-  getWethContractAddress
+  getWethContractAddress,
+  WETH_ABI
 };

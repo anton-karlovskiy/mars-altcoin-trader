@@ -41,7 +41,7 @@ import {
   getUniswapV3PoolFactoryContractAddress,
   getUniswapV3QuoterV2ContractAddress,
   getUniswapV3SwapRouterContractAddress
-} from '@/constants/uniswap/addresses';
+} from '@/constants/uniswap/contracts';
 import {
   approveTokenSpending,
   prepareWETH

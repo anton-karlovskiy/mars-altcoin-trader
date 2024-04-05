@@ -14,8 +14,10 @@ import {
   getWallet,
   sendTransaction
 } from '@/utils/uniswap/web3';
-import { WETH_ABI } from '@/constants/uniswap/msc';
-import { getWethContractAddress } from '@/constants/uniswap/addresses';
+import {
+  getWethContractAddress,
+  WETH_ABI
+} from '@/constants/uniswap/contracts';
 import {
   fromReadableAmount,
   toReadableAmount

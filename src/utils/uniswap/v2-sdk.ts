@@ -20,7 +20,7 @@ import {
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json';
 import IUniswapV2Router02 from '@uniswap/v2-periphery/build/IUniswapV2Router02.json';
 
-import { getUniswapV2Router02ContractAddress } from '@/constants/uniswap/addresses';
+import { getUniswapV2Router02ContractAddress } from '@/constants/uniswap/contracts';
 import {
   getProvider,
   getWallet,
