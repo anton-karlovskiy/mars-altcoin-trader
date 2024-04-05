@@ -134,7 +134,8 @@ class RaydiumSwap {
         minAmountOut,
         amountIn
       } = await this.calcAmountOut(poolKeys, amount, directionIn);
-      console.log({ minAmountOut, amountIn });
+      console.log('minAmountOut:', minAmountOut);
+      console.log('amountIn:', amountIn);
       const userTokenAccounts = await this.getOwnerTokenAccounts();
       const swapTransaction = await Liquidity.makeSwapInstructionSimple({
         connection: this.connection,
@@ -362,7 +363,7 @@ const swapOnRadium = async (
      * Find pool information for the given token pair.
      */
     const poolInfo = raydiumSwap.findPoolInfoForTokens(inputTokenAddress, outputTokenAddress);
-    console.log('Found pool info');
+    console.log('Found pool info.');
 
     if (!poolInfo) {
       throw new Error(`No pool info thrown at "swap": ${poolInfo}`);
@@ -413,7 +414,16 @@ const buyTokensOnRadium = async (outputTokenAddress: string, inputAmount: number
   }
 };
 
+const sellTokensOnRadium = async (inputTokenAddress: string, inputAmount: number, executeSwap = false) => {
+  try {
+    return await swapOnRadium(inputTokenAddress, SOL_ADDRESS, inputAmount, executeSwap);
+  } catch (error) {
+    throw new Error(`Thrown at "sellTokensOnRadium": ${error}`);
+  }
+};
+
 export {
   RaydiumSwap,
-  buyTokensOnRadium
+  buyTokensOnRadium,
+  sellTokensOnRadium
 };
