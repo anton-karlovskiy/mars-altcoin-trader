@@ -16,17 +16,14 @@ import {
   USDC_TOKEN,
   WETH_TOKEN
 } from '@/constants/uniswap/tokens';
-import {
-  SOL_ADDRESS,
-  USDC_ADDRESS
-} from '@/constants/radium/tokens';
+import { USDC_ADDRESS } from '@/constants/radium/tokens';
 import {
   getQuoteOnUniswapV3,
   buyTokensOnUniswapV3,
   sellTokensOnUniswapV3,
   getTradeInfoOnUniswapV3
 } from '@/utils/uniswap/v3-sdk';
-import { swapOnRadium } from '@/utils/radium/sdk';
+import { buyTokensOnRadium } from '@/utils/radium/sdk';
 
 const main = async () => {
   const targetChainId = ChainId.MAINNET;
@@ -56,10 +53,9 @@ const main = async () => {
   const tradeInfoOnUniswapV3 = await getTradeInfoOnUniswapV3(WETH, DAI, 1000);
   console.log('Trade info on Uniswap V3:', tradeInfoOnUniswapV3);
 
-  const inputTokenAddress = SOL_ADDRESS;
   const outputTokenAddress = USDC_ADDRESS;
   const inputAmount = 0.01;
-  await swapOnRadium(inputTokenAddress, outputTokenAddress, inputAmount);
+  await buyTokensOnRadium(outputTokenAddress, inputAmount);
 };
 
 main();

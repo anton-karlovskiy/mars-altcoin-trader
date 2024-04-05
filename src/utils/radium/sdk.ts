@@ -33,6 +33,7 @@ import {
   SWAP_LIQUIDITY_FILE,
   SWAP_MAX_RETRIES
 } from '@/config/radium/swap';
+import { SOL_ADDRESS } from '@/constants/radium/tokens';
 
 /**
  * Class representing a Raydium Swap operation.
@@ -303,7 +304,9 @@ class RaydiumSwap {
       const currencyIn = new Token(TOKEN_PROGRAM_ID, currencyInMint, currencyInDecimals);
       const amountIn = new TokenAmount(currencyIn, rawAmountIn, false);
       const currencyOut = new Token(TOKEN_PROGRAM_ID, currencyOutMint, currencyOutDecimals);
+      // ray test touch <
       const slippage = new Percent(5, 100); // 5% slippage
+      // ray test touch >
   
       const {
         amountOut,
@@ -359,7 +362,7 @@ const swapOnRadium = async (
      * Find pool information for the given token pair.
      */
     const poolInfo = raydiumSwap.findPoolInfoForTokens(inputTokenAddress, outputTokenAddress);
-    console.log('Found pool info:', poolInfo);
+    console.log('Found pool info');
 
     if (!poolInfo) {
       throw new Error(`No pool info thrown at "swap": ${poolInfo}`);
@@ -402,7 +405,15 @@ const swapOnRadium = async (
   }
 };
 
+const buyTokensOnRadium = async (outputTokenAddress: string, inputAmount: number, executeSwap = false) => {
+  try {
+    return await swapOnRadium(SOL_ADDRESS, outputTokenAddress, inputAmount, executeSwap);
+  } catch (error) {
+    throw new Error(`Thrown at "buyTokensOnRadium": ${error}`);
+  }
+};
+
 export {
   RaydiumSwap,
-  swapOnRadium
+  buyTokensOnRadium
 };
