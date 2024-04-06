@@ -35,6 +35,8 @@ import {
 } from '@/config/radium/swap';
 import { SOL_ADDRESS } from '@/constants/radium/tokens';
 
+let instance: RaydiumSwap | null = null;
+
 /**
  * Class representing a Raydium Swap operation.
  */
@@ -53,6 +55,14 @@ class RaydiumSwap {
     this.wallet = new Wallet(Keypair.fromSecretKey(Uint8Array.from(bs58.decode(WALLET_PRIVATE_KEY))));
   }
 
+  static getInstance(RPC_URL: string, WALLET_PRIVATE_KEY: string) {
+    if (!instance) {
+      instance = new RaydiumSwap(RPC_URL, WALLET_PRIVATE_KEY);
+      console.log('Raydium swap initialized.');
+    }
+    return instance;
+  }
+
   /**
    * Loads all the pool keys available from a JSON configuration file.
    * @async
@@ -60,12 +70,16 @@ class RaydiumSwap {
    */
   async loadPoolKeys(liquidityFile: string) {
     try {
-      const liquidityJsonResp = await fetch(liquidityFile);
-      if (!liquidityJsonResp.ok) return;
-      const liquidityJson = (await liquidityJsonResp.json()) as { official: any; unOfficial: any };
-      const allPoolKeysJson = [...(liquidityJson?.official ?? []), ...(liquidityJson?.unOfficial ?? [])];
-  
-      this.allPoolKeysJson = allPoolKeysJson;
+      if (this.allPoolKeysJson.length == 0) {
+        const liquidityJsonResp = await fetch(liquidityFile);
+        if (!liquidityJsonResp.ok) return;
+        const liquidityJson = (await liquidityJsonResp.json()) as { official: any; unOfficial: any };
+        const allPoolKeysJson = [...(liquidityJson?.official ?? []), ...(liquidityJson?.unOfficial ?? [])];
+    
+        this.allPoolKeysJson = allPoolKeysJson;
+
+        console.log('Loaded pool keys.');
+      }
     } catch (error) {
       throw new Error(`Thrown at "loadPoolKeys": ${error}`);
     }
@@ -349,25 +363,24 @@ const swapOnRadium = async (
     /**
      * The RaydiumSwap instance for handling swaps.
      */
-    const raydiumSwap = new RaydiumSwap(SOLANA_NODE_JSON_RPC_ENDPOINT, SOLANA_WALLET_ACCOUNT_PRIVATE_KEY);
-    console.log('Raydium swap initialized.');
+    const raydiumSwap = RaydiumSwap.getInstance(SOLANA_NODE_JSON_RPC_ENDPOINT, SOLANA_WALLET_ACCOUNT_PRIVATE_KEY);
+    
     console.log(`Swapping ${inputAmount} of ${inputTokenAddress} for ${outputTokenAddress}...`);
 
     /**
      * Load pool keys from the Raydium API to enable finding pool information.
      */
     await raydiumSwap.loadPoolKeys(SWAP_LIQUIDITY_FILE);
-    console.log(`Loaded pool keys.`);
 
     /**
      * Find pool information for the given token pair.
      */
     const poolInfo = raydiumSwap.findPoolInfoForTokens(inputTokenAddress, outputTokenAddress);
-    console.log('Found pool info.');
-
     if (!poolInfo) {
-      throw new Error(`No pool info thrown at "swap": ${poolInfo}`);
+      throw new Error(`No pool info thrown at "swapOnRadium": ${poolInfo}`);
     }
+
+    console.log(`Found pool (${inputTokenAddress}, ${outputTokenAddress}) info.`);
 
     /**
      * Prepare the swap transaction with the given parameters.
@@ -402,7 +415,7 @@ const swapOnRadium = async (
       return simRes;
     }
   } catch (error) {
-    throw new Error(`Thrown at "swap": ${error}`);
+    throw new Error(`Thrown at "swapOnRadium": ${error}`);
   }
 };
 
@@ -422,7 +435,43 @@ const sellTokensOnRadium = async (inputTokenAddress: string, inputAmount: number
   }
 };
 
+const getTradeInfoOnRadium = async (inputTokenAddress: string, outputTokenAddress: string, inputAmount: number) => {
+  try {
+    const raydiumSwap = RaydiumSwap.getInstance(SOLANA_NODE_JSON_RPC_ENDPOINT, SOLANA_WALLET_ACCOUNT_PRIVATE_KEY);
+
+    await raydiumSwap.loadPoolKeys(SWAP_LIQUIDITY_FILE);
+
+    const poolInfo = raydiumSwap.findPoolInfoForTokens(inputTokenAddress, outputTokenAddress);
+    if (!poolInfo) {
+      throw new Error(`No pool info thrown at "getTradeInfoOnRadium": ${poolInfo}`);
+    }
+
+    const {
+      amountIn,
+      amountOut,
+      minAmountOut,
+      currentPrice,
+      executionPrice,
+      priceImpact,
+      fee
+    } = await raydiumSwap.calcAmountOut(poolInfo, inputAmount, true);
+
+    return {
+      amountIn,
+      amountOut,
+      minAmountOut,
+      currentPrice,
+      executionPrice,
+      priceImpact,
+      fee
+    };
+  } catch (error) {
+    throw new Error(`Thrown at "getTradeInfoOnRadium": ${error}`);
+  }
+};
+
 export {
   buyTokensOnRadium,
-  sellTokensOnRadium
+  sellTokensOnRadium,
+  getTradeInfoOnRadium
 };
