@@ -138,6 +138,7 @@ class RaydiumSwap {
     // fromToken: string,
     amount: number,
     poolKeys: LiquidityPoolKeys,
+    slippagePercentage: number,
     maxLamports: number = 100000, // RE: https://docs.chainstack.com/docs/solana-how-to-perform-token-swaps-using-the-raydium-sdk#maxlamports
     useVersionedTransaction = true,
     fixedSide: 'in' | 'out' = 'in' // RE: https://docs.chainstack.com/docs/solana-how-to-perform-token-swaps-using-the-raydium-sdk#direction
@@ -147,7 +148,7 @@ class RaydiumSwap {
       const {
         minAmountOut,
         amountIn
-      } = await this.calcAmountOut(poolKeys, amount, directionIn);
+      } = await this.calcAmountOut(poolKeys, amount, directionIn, slippagePercentage);
       console.log('minAmountOut:', minAmountOut);
       console.log('amountIn:', amountIn);
       const userTokenAccounts = await this.getOwnerTokenAccounts();
@@ -297,7 +298,7 @@ class RaydiumSwap {
    * @param {boolean} swapInDirection - The direction of the swap (true for in, false for out).
    * @returns {Promise<Object>} The swap calculation result.
    */
-  async calcAmountOut(poolKeys: LiquidityPoolKeys, rawAmountIn: number, swapInDirection: boolean) {
+  async calcAmountOut(poolKeys: LiquidityPoolKeys, rawAmountIn: number, swapInDirection: boolean, slippagePercentage: number) {
     try {
       const poolInfo = await Liquidity.fetchInfo({
         connection: this.connection,
@@ -319,9 +320,7 @@ class RaydiumSwap {
       const currencyIn = new Token(TOKEN_PROGRAM_ID, currencyInMint, currencyInDecimals);
       const amountIn = new TokenAmount(currencyIn, rawAmountIn, false);
       const currencyOut = new Token(TOKEN_PROGRAM_ID, currencyOutMint, currencyOutDecimals);
-      // ray test touch <
-      const slippage = new Percent(5, 100); // 5% slippage
-      // ray test touch >
+      const slippage = new Percent(slippagePercentage, 100);
   
       const {
         amountOut,
@@ -357,6 +356,7 @@ const swapOnRadium = async (
   inputTokenAddress: string,
   outputTokenAddress: string,
   inputAmount: number,
+  slippagePercentage = 5,
   executeSwap = false // Send tx when true, simulate tx when false
 ) => {
   try {
@@ -389,6 +389,7 @@ const swapOnRadium = async (
       outputTokenAddress,
       inputAmount,
       poolInfo,
+      slippagePercentage,
       SWAP_MAX_LAMPORTS
     );
 
@@ -419,23 +420,23 @@ const swapOnRadium = async (
   }
 };
 
-const buyTokensOnRadium = async (outputTokenAddress: string, inputAmount: number, executeSwap = false) => {
+const buyTokensOnRadium = async (outputTokenAddress: string, inputAmount: number, slippagePercentage = 5, executeSwap = false) => {
   try {
-    return await swapOnRadium(SOL_ADDRESS, outputTokenAddress, inputAmount, executeSwap);
+    return await swapOnRadium(SOL_ADDRESS, outputTokenAddress, inputAmount, slippagePercentage, executeSwap);
   } catch (error) {
     throw new Error(`Thrown at "buyTokensOnRadium": ${error}`);
   }
 };
 
-const sellTokensOnRadium = async (inputTokenAddress: string, inputAmount: number, executeSwap = false) => {
+const sellTokensOnRadium = async (inputTokenAddress: string, inputAmount: number, slippagePercentage = 5, executeSwap = false) => {
   try {
-    return await swapOnRadium(inputTokenAddress, SOL_ADDRESS, inputAmount, executeSwap);
+    return await swapOnRadium(inputTokenAddress, SOL_ADDRESS, inputAmount, slippagePercentage, executeSwap);
   } catch (error) {
     throw new Error(`Thrown at "sellTokensOnRadium": ${error}`);
   }
 };
 
-const getTradeInfoOnRadium = async (inputTokenAddress: string, outputTokenAddress: string, inputAmount: number) => {
+const getTradeInfoOnRadium = async (inputTokenAddress: string, outputTokenAddress: string, inputAmount: number, slippagePercentage = 5) => {
   try {
     const raydiumSwap = RaydiumSwap.getInstance(SOLANA_NODE_JSON_RPC_ENDPOINT, SOLANA_WALLET_ACCOUNT_PRIVATE_KEY);
 
@@ -454,7 +455,7 @@ const getTradeInfoOnRadium = async (inputTokenAddress: string, outputTokenAddres
       executionPrice,
       priceImpact,
       fee
-    } = await raydiumSwap.calcAmountOut(poolInfo, inputAmount, true);
+    } = await raydiumSwap.calcAmountOut(poolInfo, inputAmount, true, slippagePercentage);
 
     return {
       amountIn,

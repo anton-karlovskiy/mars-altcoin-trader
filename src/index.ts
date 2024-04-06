@@ -60,10 +60,10 @@ const main = async () => {
   const tradeInfoOnUniswapV3 = await getTradeInfoOnUniswapV3(WETH, DAI, 1000);
   console.log('Trade info on Uniswap V3:', tradeInfoOnUniswapV3);
 
-  // await buyTokensOnRadium(USDC_ADDRESS, 0.01, true);
-  // await sellTokensOnRadium(USDC_ADDRESS, 1, true);
+  // await buyTokensOnRadium(USDC_ADDRESS, 0.01, 5, true); // 5% slippage
+  // await sellTokensOnRadium(USDC_ADDRESS, 1, 5, true);
 
-  const tradeInfoOnRadium = await getTradeInfoOnRadium(SOL_ADDRESS, USDC_ADDRESS, 1000);
+  const tradeInfoOnRadium = await getTradeInfoOnRadium(SOL_ADDRESS, USDC_ADDRESS, 1000, 5);
   console.log('Trade info on Radium:', tradeInfoOnRadium);
 };
 
