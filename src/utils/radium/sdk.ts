@@ -423,7 +423,6 @@ const sellTokensOnRadium = async (inputTokenAddress: string, inputAmount: number
 };
 
 export {
-  RaydiumSwap,
   buyTokensOnRadium,
   sellTokensOnRadium
 };

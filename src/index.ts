@@ -56,8 +56,8 @@ const main = async () => {
   const tradeInfoOnUniswapV3 = await getTradeInfoOnUniswapV3(WETH, DAI, 1000);
   console.log('Trade info on Uniswap V3:', tradeInfoOnUniswapV3);
 
-  await buyTokensOnRadium(USDC_ADDRESS, 0.01);
-  await sellTokensOnRadium(USDC_ADDRESS, 1);
+  // await buyTokensOnRadium(USDC_ADDRESS, 0.01, true);
+  // await sellTokensOnRadium(USDC_ADDRESS, 1, true);
 };
 
 main();
