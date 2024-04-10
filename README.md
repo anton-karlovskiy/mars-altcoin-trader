@@ -20,6 +20,39 @@
 
 - Routes
 
+- API call
+  * encode/decode (nice to have)
+  * buy/sell (market/limit)
+  * get limit orders
+  * get positions
+
+- database
+
+- position management
+  * open position at buy (merge for same tokens)
+  * position update (profit) (token amount check) (nice to have)
+  * close/update position at sell 
+  * calculate profit at position close (sell)
+
+- order management
+  * add/edit/delete limit order
+  * execute limit order if conditions are met 
+
+market/limit sol 3 buy
+market/limit sol 1 buy
+market/limit sol 1 buy
+
+market/limit sol 1 sell
+
+
+buy position 4
+
+1 100
+2 105
+1 110
+
+(100 * 1 + 2 * 105 + 1 * 110) / 4
+
 e.g. UNI/ETH
 
 ## Assumptions (proof of concept)
