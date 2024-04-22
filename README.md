@@ -12,7 +12,6 @@
   * Uniswap v2
   * Uniswap v3
   * Radium
-  * Pancakeswap
 
 - Strategies
   * simple-TPSL
@@ -21,7 +20,7 @@
 - Routes
 
 - API call
-  * encode/decode (nice to have)
+  * encode/decode
   * buy/sell (market/limit)
   * get limit orders
   * get positions
@@ -35,7 +34,7 @@
   * calculate profit at position close (sell)
 
 - order management
-  * add/edit/delete limit order
+  * create/update/delete limit order
   * execute limit order if conditions are met 
 
 market/limit sol 3 buy
@@ -52,8 +51,6 @@ buy position 4
 1 110
 
 (100 * 1 + 2 * 105 + 1 * 110) / 4
-
-e.g. UNI/ETH
 
 ## Assumptions (proof of concept)
 
