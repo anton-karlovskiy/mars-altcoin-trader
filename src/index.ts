@@ -5,6 +5,9 @@ import {
   ChainId,
   WETH9
 } from '@uniswap/sdk-core';
+// ray test touch <
+import express from 'express';
+// ray test touch >
 
 import {
   buyTokensOnUniswapV2,
@@ -67,4 +70,53 @@ const main = async () => {
   console.log('Trade info on Radium:', tradeInfoOnRadium);
 };
 
-main();
+// ray test touch <
+interface DataRequest {
+  name: string;
+}
+
+interface DataResponse {
+  message: string;
+}
+
+function getData(name: string): DataResponse {
+  return { message: `Hello, ${name}!` };
+}
+
+interface ProcessRequest {
+  data: string;
+}
+
+interface ProcessResponse {
+  processedData: string;
+}
+
+function processData(data: string): ProcessResponse {
+  return { processedData: data.toUpperCase() };
+}
+
+const app: express.Application = express();
+
+// Middleware to parse JSON request bodies
+app.use(express.json());
+
+// GET request to /data/:name endpoint
+app.get<DataRequest, DataResponse, never>('/data/:name', (req, res) => {
+  const name = req.params.name;
+  const response = getData(name);
+  res.send(response);
+});
+
+// POST request to /process endpoint
+app.post<ProcessRequest, ProcessResponse>('/process', (req, res) => {
+  const data = req.body.data;
+  const processedData = processData(data);
+  res.json(processedData);
+});
+
+const port = 3000;
+
+app.listen(port, () => {
+  console.log(`Server listening on port ${port}`);
+});
+// ray test touch >
