@@ -114,9 +114,9 @@ app.post<ProcessRequest, ProcessResponse>('/process', (req, res) => {
   res.json(processedData);
 });
 
-const port = 3000;
+const port = process.env.PORT || 3000;
 
-app.listen(port, () => {
+app.listen(Number(port), '0.0.0.0', () => {
   console.log(`Server listening on port ${port}`);
 });
 // ray test touch >
