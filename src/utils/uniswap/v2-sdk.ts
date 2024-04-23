@@ -28,6 +28,7 @@ import {
 } from '@/utils/uniswap/web3';
 import { fromReadableAmount } from '@/utils/uniswap/conversion';
 import { approveTokenSpending } from '@/utils/uniswap/helpers';
+import { TradeInfoOnUniswapV2 } from '@/types/general';
 
 const createPairOnUniswapV2 = async (tokenA: Token, tokenB: Token) => {
   try {
@@ -206,7 +207,7 @@ const sellTokensOnUniswapV2 = async (inputToken: Token, inputAmount: number, sli
   }
 };
 
-const getTradeInfoOnUniswapV2 = async (inputToken: Token, outputToken: Token, inputAmount: number, priceSignificantDigits = 6, priceImpactDecimalPlaces = 2) => {
+const getTradeInfoOnUniswapV2 = async (inputToken: Token, outputToken: Token, inputAmount: number, priceSignificantDigits = 6, priceImpactDecimalPlaces = 2): Promise<TradeInfoOnUniswapV2> => {
   try {
     const [
       trade,
