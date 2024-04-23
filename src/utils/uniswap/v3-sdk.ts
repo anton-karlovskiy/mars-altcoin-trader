@@ -46,6 +46,7 @@ import {
   approveTokenSpending,
   prepareWETH
 } from '@/utils/uniswap/helpers';
+import { TradeInfoOnUniswapV3 } from '@/types/general';
 
 const getPoolConstantsOnUniswapV3 = async (inputToken: Token, outputToken: Token, poolFee = FeeAmount.MEDIUM): Promise<{
   token0: string
@@ -328,7 +329,7 @@ const sellTokensOnUniswapV3 = async (inputToken: Token, inputAmount: number, sli
   }
 };
 
-const getTradeInfoOnUniswapV3 = async (inputToken: Token, outputToken: Token, inputAmount: number, priceSignificantDigits = 6, priceImpactDecimalPlaces = 2) => {
+const getTradeInfoOnUniswapV3 = async (inputToken: Token, outputToken: Token, inputAmount: number, priceSignificantDigits = 6, priceImpactDecimalPlaces = 2): Promise<TradeInfoOnUniswapV3> => {
   try {
     const trade = await createTradeOnUniswapV3(inputToken, outputToken, inputAmount);
 

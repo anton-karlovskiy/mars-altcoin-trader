@@ -6,8 +6,12 @@ import express, {
 import { ChainId } from '@uniswap/sdk-core';
 
 import { getTradeInfoOnUniswapV2 } from '@/utils/uniswap/v2-sdk';
+import { getTradeInfoOnUniswapV3 } from '@/utils/uniswap/v3-sdk';
 import { createToken } from '@/utils/uniswap/helpers';
-import { TradeInfoOnUniswapV2 } from '@/types/general';
+import {
+  TradeInfoOnUniswapV2,
+  TradeInfoOnUniswapV3
+} from '@/types/general';
 
 function configureRoutes(app: express.Application) {
   // GET request to /trade-info-on-uniswap-v2?chainId=1&inputTokenAddress=0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2&outputTokenAddress=0x6b175474e89094c44da98b954eedeac495271d0f&inputAmount=1000
@@ -24,10 +28,10 @@ function configureRoutes(app: express.Application) {
         const outputTokenAddress = req.query.outputTokenAddress;
         const inputAmount = Number(req.query.inputAmount);
       
-        const WETH = await createToken(inputTokenAddress, chainId);
-        const DAI = await createToken(outputTokenAddress, chainId);
+        const inputToken = await createToken(inputTokenAddress, chainId);
+        const outputToken = await createToken(outputTokenAddress, chainId);
       
-        const tradeInfoOnUniswapV2 = await getTradeInfoOnUniswapV2(WETH, DAI, inputAmount);
+        const tradeInfoOnUniswapV2 = await getTradeInfoOnUniswapV2(inputToken, outputToken, inputAmount);
         console.log('Trade info on Uniswap V2:', tradeInfoOnUniswapV2);
       
         res.json(tradeInfoOnUniswapV2);
@@ -35,7 +39,34 @@ function configureRoutes(app: express.Application) {
         next(error); // Pass the error to the next middleware
       }
     }
-);
+  );
+
+  // GET request to /trade-info-on-uniswap-v3?chainId=1&inputTokenAddress=0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2&outputTokenAddress=0x6b175474e89094c44da98b954eedeac495271d0f&inputAmount=1000
+  app.get(
+    '/trade-info-on-uniswap-v3',
+    async (
+      req: Request<any, any, any, { chainId: string; inputTokenAddress: string; outputTokenAddress: string; inputAmount: string; }>,
+      res: Response<TradeInfoOnUniswapV3>,
+      next: NextFunction
+    ) => {
+      try {
+        const chainId = Number(req.query.chainId) as ChainId;
+        const inputTokenAddress = req.query.inputTokenAddress;
+        const outputTokenAddress = req.query.outputTokenAddress;
+        const inputAmount = Number(req.query.inputAmount);
+      
+        const inputToken = await createToken(inputTokenAddress, chainId);
+        const outputToken = await createToken(outputTokenAddress, chainId);
+      
+        const tradeInfoOnUniswapV3 = await getTradeInfoOnUniswapV3(inputToken, outputToken, inputAmount);
+        console.log('Trade info on Uniswap V3:', tradeInfoOnUniswapV3);
+      
+        res.json(tradeInfoOnUniswapV3);
+      } catch (error) {
+        next(error); // Pass the error to the next middleware
+      }
+    }
+  );
   
   interface ProcessRequest {
     data: string;
