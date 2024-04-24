@@ -14,12 +14,12 @@ import {
 } from '@/types/general';
 
 function configureRoutes(app: express.Application) {
-  // GET request to /trade-info-on-uniswap-v2?chainId=1&inputTokenAddress=0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2&outputTokenAddress=0x6b175474e89094c44da98b954eedeac495271d0f&inputAmount=1000
+  // GET request to /trade-info-on-uniswap/3/?chainId=1&inputTokenAddress=0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2&outputTokenAddress=0x6b175474e89094c44da98b954eedeac495271d0f&inputAmount=1000
   app.get(
-    '/trade-info-on-uniswap-v2',
+    '/trade-info-on-uniswap/:version',
     async (
-      req: Request<any, any, any, { chainId: string; inputTokenAddress: string; outputTokenAddress: string; inputAmount: string; }>,
-      res: Response<TradeInfoOnUniswapV2>,
+      req: Request<{ version: string; }, any, any, { chainId: string; inputTokenAddress: string; outputTokenAddress: string; inputAmount: string; }>,
+      res: Response<TradeInfoOnUniswapV2 | TradeInfoOnUniswapV3>,
       next: NextFunction
     ) => {
       try {
@@ -30,38 +30,24 @@ function configureRoutes(app: express.Application) {
       
         const inputToken = await createToken(inputTokenAddress, chainId);
         const outputToken = await createToken(outputTokenAddress, chainId);
-      
-        const tradeInfoOnUniswapV2 = await getTradeInfoOnUniswapV2(inputToken, outputToken, inputAmount);
-        console.log('Trade info on Uniswap V2:', tradeInfoOnUniswapV2);
-      
-        res.json(tradeInfoOnUniswapV2);
-      } catch (error) {
-        next(error); // Pass the error to the next middleware
-      }
-    }
-  );
 
-  // GET request to /trade-info-on-uniswap-v3?chainId=1&inputTokenAddress=0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2&outputTokenAddress=0x6b175474e89094c44da98b954eedeac495271d0f&inputAmount=1000
-  app.get(
-    '/trade-info-on-uniswap-v3',
-    async (
-      req: Request<any, any, any, { chainId: string; inputTokenAddress: string; outputTokenAddress: string; inputAmount: string; }>,
-      res: Response<TradeInfoOnUniswapV3>,
-      next: NextFunction
-    ) => {
-      try {
-        const chainId = Number(req.query.chainId) as ChainId;
-        const inputTokenAddress = req.query.inputTokenAddress;
-        const outputTokenAddress = req.query.outputTokenAddress;
-        const inputAmount = Number(req.query.inputAmount);
+        const version = Number(req.params.version);
+
+        let tradeInfoOnUniswap;
+        switch (version) {
+          case 2:
+            tradeInfoOnUniswap = await getTradeInfoOnUniswapV2(inputToken, outputToken, inputAmount);
+            break;
+          case 3:
+            tradeInfoOnUniswap = await getTradeInfoOnUniswapV3(inputToken, outputToken, inputAmount);
+            break;
+          default:
+            throw new Error(`Invalid Uniswap version: ${version}!`);
+        }
+
+        console.log(`Trade info on Uniswap V${version}:`, tradeInfoOnUniswap);
       
-        const inputToken = await createToken(inputTokenAddress, chainId);
-        const outputToken = await createToken(outputTokenAddress, chainId);
-      
-        const tradeInfoOnUniswapV3 = await getTradeInfoOnUniswapV3(inputToken, outputToken, inputAmount);
-        console.log('Trade info on Uniswap V3:', tradeInfoOnUniswapV3);
-      
-        res.json(tradeInfoOnUniswapV3);
+        res.json(tradeInfoOnUniswap);
       } catch (error) {
         next(error); // Pass the error to the next middleware
       }
