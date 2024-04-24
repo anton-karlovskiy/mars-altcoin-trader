@@ -1,17 +1,12 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import {
-  ChainId,
-  WETH9
-} from '@uniswap/sdk-core';
 import express, { Express } from 'express';
 
 import {
   buyTokensOnUniswapV2,
   sellTokensOnUniswapV2
 } from '@/utils/uniswap/v2-sdk';
-import { createToken } from '@/utils/uniswap/helpers';
 import {
   USDC_TOKEN,
   WETH_TOKEN
@@ -23,8 +18,7 @@ import {
 import {
   getQuoteOnUniswapV3,
   buyTokensOnUniswapV3,
-  sellTokensOnUniswapV3,
-  getTradeInfoOnUniswapV3
+  sellTokensOnUniswapV3
 } from '@/utils/uniswap/v3-sdk';
 import {
   buyTokensOnRadium,
@@ -35,14 +29,6 @@ import { configureRoutes } from '@/routes';
 import { errorHandler } from '@/middleware/error';
 
 const main = async () => {
-  const targetChainId = ChainId.MAINNET;
-
-  const DAI = await createToken('0x6b175474e89094c44da98b954eedeac495271d0f', targetChainId);
-  const WETH = WETH9[targetChainId];
-  if (!WETH) {
-    throw new Error('Invalid WETH!');
-  }
-
   // const txReceipt = await buyTokensOnUniswapV2(DAI, 0.0001, 0.5);
   // console.log('Buy TX receipt on Uniswap V2:', txReceipt);
   // const txReceipt = await sellTokensOnUniswapV2(DAI, 0.01, 0.5);
@@ -55,9 +41,6 @@ const main = async () => {
   // console.log('Buy TX receipt on Uniswap V3:', txReceipt);
   // const txReceipt = await sellTokensOnUniswapV3(USDC_TOKEN, 0.01, 0.5);
   // console.log('Sell TX receipt on Uniswap V3:', txReceipt);
-
-  const tradeInfoOnUniswapV3 = await getTradeInfoOnUniswapV3(WETH, DAI, 1000);
-  console.log('Trade info on Uniswap V3:', tradeInfoOnUniswapV3);
 
   // await buyTokensOnRadium(USDC_ADDRESS, 0.01, 5, true); // 5% slippage
   // await sellTokensOnRadium(USDC_ADDRESS, 1, 5, true);
