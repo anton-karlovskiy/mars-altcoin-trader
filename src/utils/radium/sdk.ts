@@ -48,17 +48,17 @@ class RaydiumSwap {
 
   /**
    * Creates a RaydiumSwap instance.
-   * @param {string} RPC_URL - The RPC URL for connecting to the Solana blockchain.
-   * @param {string} WALLET_PRIVATE_KEY - The private key of the wallet in base58 format.
+   * @param {string} rpcUrl - The RPC URL for connecting to the Solana blockchain.
+   * @param {string} walletPrivateKey - The private key of the wallet in base58 format.
    */
-  constructor(RPC_URL: string, WALLET_PRIVATE_KEY: string) {
-    this.connection = new Connection(RPC_URL, { commitment: 'confirmed' });
-    this.wallet = new Wallet(Keypair.fromSecretKey(Uint8Array.from(bs58.decode(WALLET_PRIVATE_KEY))));
+  constructor(rpcUrl: string, walletPrivateKey: string) {
+    this.connection = new Connection(rpcUrl, { commitment: 'confirmed' });
+    this.wallet = new Wallet(Keypair.fromSecretKey(Uint8Array.from(bs58.decode(walletPrivateKey))));
   }
 
-  static getInstance(RPC_URL: string, WALLET_PRIVATE_KEY: string) {
+  static getInstance(rpcUrl: string, walletPrivateKey: string) {
     if (!instance) {
-      instance = new RaydiumSwap(RPC_URL, WALLET_PRIVATE_KEY);
+      instance = new RaydiumSwap(rpcUrl, walletPrivateKey);
       console.log('Raydium swap initialized.');
     }
     return instance;
