@@ -8,22 +8,12 @@ import {
   sellTokensOnUniswapV2
 } from '@/utils/uniswap/v2-sdk';
 import {
-  USDC_TOKEN,
-  WETH_TOKEN
-} from '@/constants/uniswap/tokens';
-import {
-  SOL_ADDRESS,
-  USDC_ADDRESS
-} from '@/constants/radium/tokens';
-import {
-  getQuoteOnUniswapV3,
   buyTokensOnUniswapV3,
   sellTokensOnUniswapV3
 } from '@/utils/uniswap/v3-sdk';
 import {
   buyTokensOnRadium,
-  sellTokensOnRadium,
-  getTradeInfoOnRadium
+  sellTokensOnRadium
 } from '@/utils/radium/sdk';
 import { configureRoutes } from '@/routes';
 import { errorHandler } from '@/middleware/error';
@@ -34,9 +24,6 @@ const main = async () => {
   // const txReceipt = await sellTokensOnUniswapV2(DAI, 0.01, 0.5);
   // console.log('Sell TX receipt on Uniswap V2:', txReceipt);
 
-  const quote = await getQuoteOnUniswapV3(WETH_TOKEN, USDC_TOKEN, 1); // TODO: quote for WETH -> USDC is misleading
-  console.log('quote on Uniswap V3:', quote);
-
   // const txReceipt = await buyTokensOnUniswapV3(USDC_TOKEN, 0.00001, 0.5);
   // console.log('Buy TX receipt on Uniswap V3:', txReceipt);
   // const txReceipt = await sellTokensOnUniswapV3(USDC_TOKEN, 0.01, 0.5);
@@ -44,9 +31,6 @@ const main = async () => {
 
   // await buyTokensOnRadium(USDC_ADDRESS, 0.01, 5, true); // 5% slippage
   // await sellTokensOnRadium(USDC_ADDRESS, 1, 5, true);
-
-  const tradeInfoOnRadium = await getTradeInfoOnRadium(SOL_ADDRESS, USDC_ADDRESS, 1000, 5);
-  console.log('Trade info on Radium:', tradeInfoOnRadium);
 };
 main();
 
