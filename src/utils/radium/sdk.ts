@@ -34,6 +34,7 @@ import {
   SWAP_MAX_RETRIES
 } from '@/config/radium/swap';
 import { SOL_ADDRESS } from '@/constants/radium/tokens';
+import { TradeInfoOnRadium } from '@/types/general';
 
 let instance: RaydiumSwap | null = null;
 
@@ -436,7 +437,7 @@ const sellTokensOnRadium = async (inputTokenAddress: string, inputAmount: number
   }
 };
 
-const getTradeInfoOnRadium = async (inputTokenAddress: string, outputTokenAddress: string, inputAmount: number, slippagePercentage = 5) => {
+const getTradeInfoOnRadium = async (inputTokenAddress: string, outputTokenAddress: string, inputAmount: number, slippagePercentage = 5): Promise<TradeInfoOnRadium> => {
   try {
     const raydiumSwap = RaydiumSwap.getInstance(SOLANA_NODE_JSON_RPC_ENDPOINT, SOLANA_WALLET_ACCOUNT_PRIVATE_KEY);
 

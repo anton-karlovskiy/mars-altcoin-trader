@@ -48,6 +48,7 @@ const main = async () => {
   const tradeInfoOnRadium = await getTradeInfoOnRadium(SOL_ADDRESS, USDC_ADDRESS, 1000, 5);
   console.log('Trade info on Radium:', tradeInfoOnRadium);
 };
+main();
 
 const app: Express = express();
 
