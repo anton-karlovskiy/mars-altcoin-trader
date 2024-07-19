@@ -12,15 +12,7 @@ import {
   METAMASK_WALLET_ACCOUNT_PRIVATE_KEY
 } from '@/config/keys';
 
-const wallets: { [chainId: string]: Wallet } = {};
 const providers: { [chainId: string]: JsonRpcProvider } = {};
-
-const getWallet = (chainId: ChainId): Wallet => {
-  if (!wallets[chainId]) {
-    wallets[chainId] = createWallet(chainId);
-  }
-  return wallets[chainId];
-};
 
 const getProvider = (chainId: ChainId): JsonRpcProvider => {
   if (!providers[chainId]) {
@@ -117,6 +109,6 @@ const createWallet = (chainId: ChainId): Wallet => {
 
 export {
   getProvider,
-  getWallet,
+  createWallet,
   sendTransaction
 };

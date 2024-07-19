@@ -11,7 +11,7 @@ import IUniswapV2ERC20 from '@uniswap/v2-core/build/IUniswapV2ERC20.json';
 
 import {
   getProvider,
-  getWallet,
+  createWallet,
   sendTransaction
 } from '@/utils/uniswap/web3';
 import {
@@ -50,7 +50,7 @@ const createToken = async (address: string, chainId: ChainId, decimals: number |
 // RE: https://stackoverflow.com/questions/71289482/doing-uniswap-v3-swaps-with-native-eth
 const wrapETH = async (rawAmount: bigint, chainId: ChainId): Promise<TransactionReceipt> => {
   try {
-    const wallet = getWallet(chainId);
+    const wallet = createWallet(chainId);
     const wethContractAddress = getWethContractAddress(chainId);
   
     const wethContract = new Contract(
@@ -86,7 +86,7 @@ const getTokenBalance = async (tokenAddress: string, chainId: ChainId, walletAdd
 const prepareWETH = async (amount: number, chainId: ChainId) => {
   try {
     const wethContractAddress = getWethContractAddress(chainId);
-    const wallet = getWallet(chainId);
+    const wallet = createWallet(chainId);
     const remainingWeth = await getTokenBalance(wethContractAddress, chainId, wallet.address);
   
     const neededWeth = fromReadableAmount(amount, 18);
@@ -112,7 +112,7 @@ const approveTokenSpending = async (
   try {
     const chainId = token.chainId;
   
-    const wallet = getWallet(chainId);
+    const wallet = createWallet(chainId);
   
     const tokenContract = new Contract(token.address, IUniswapV2ERC20.abi, wallet);
   

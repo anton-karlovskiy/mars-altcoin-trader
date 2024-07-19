@@ -23,7 +23,7 @@ import IUniswapV2Router02 from '@uniswap/v2-periphery/build/IUniswapV2Router02.j
 import { getUniswapV2Router02ContractAddress } from '@/constants/uniswap/contracts';
 import {
   getProvider,
-  getWallet,
+  createWallet,
   sendTransaction
 } from '@/utils/uniswap/web3';
 import { fromReadableAmount } from '@/utils/uniswap/conversion';
@@ -114,7 +114,7 @@ const swapOnUniswapV2 = async (inputToken: Token, outputToken: Token, inputAmoun
 
     const chainId = inputToken.chainId;
 
-    const wallet = getWallet(chainId);
+    const wallet = createWallet(chainId);
 
     const uniswapV2Router02Contract = new Contract(getUniswapV2Router02ContractAddress(chainId), IUniswapV2Router02.abi, wallet);
 

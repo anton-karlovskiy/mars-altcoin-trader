@@ -29,7 +29,7 @@ import JSBI from 'jsbi';
 
 import {
   getProvider,
-  getWallet,
+  createWallet,
   sendTransaction
 } from '@/utils/uniswap/web3';
 import {
@@ -266,7 +266,7 @@ const executeTradeOnUniswapV3 = async (
   try {
     const chainId = trade.swaps[0].route.chainId;
   
-    const wallet = getWallet(chainId);
+    const wallet = createWallet(chainId);
   
     const options: SwapOptions = {
       slippageTolerance: new Percent(slippage * 100, 10_000), // 50 bips, or 0.50%
