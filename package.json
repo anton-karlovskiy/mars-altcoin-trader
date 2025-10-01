@@ -1,7 +1,7 @@
 {
   "name": "mars-altcoin-trader",
   "version": "1.0.0",
-  "description": "",
+  "description": "Advanced DeFi trading bot supporting Uniswap V2, Uniswap V3, and Raydium DEXs with automated trading strategies, price analysis, and multi-chain support for Ethereum and Solana networks.",
   "main": "dist/index.js",
   "scripts": {
     "ts-prepare": "ts-patch install -s",
@@ -10,8 +10,29 @@
     "build": "tsc && tsc-alias",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "defi",
+    "trading-bot",
+    "uniswap",
+    "raydium",
+    "ethereum",
+    "solana",
+    "crypto-trading",
+    "automated-trading",
+    "dex",
+    "amm",
+    "liquidity",
+    "trading-strategies",
+    "web3",
+    "blockchain",
+    "cryptocurrency",
+    "trading-automation",
+    "price-analysis",
+    "slippage-protection",
+    "multi-chain",
+    "typescript"
+  ],
+  "author": "Anton K. <antonkarlovskiy@outlook.com>",
   "license": "ISC",
   "devDependencies": {
     "@types/express": "^4.17.21",
