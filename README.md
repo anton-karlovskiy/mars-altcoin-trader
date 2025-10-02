@@ -8,35 +8,6 @@
 
 > **Advanced DeFi Trading Bot** supporting Uniswap V2, Uniswap V3, and Raydium DEXs with automated trading strategies, price analysis, and multi-chain support.
 
-## 📖 About
-
-**Mars Altcoin Trader** is a sophisticated, production-ready trading bot designed for the modern DeFi ecosystem. Built with TypeScript and supporting multiple decentralized exchanges, it provides traders with powerful automation tools for cryptocurrency trading across Ethereum and Solana networks.
-
-### 🎯 **What Makes This Different?**
-
-- **Multi-DEX Architecture**: Seamlessly trade across Uniswap V2, Uniswap V3, and Raydium
-- **Multi-Chain Support**: Ethereum, Arbitrum, Sepolia, and Solana networks
-- **Production-Ready**: Built with enterprise-grade security and error handling
-- **Developer-Friendly**: Clean TypeScript codebase with comprehensive documentation
-- **RESTful API**: Easy integration with external trading systems and dashboards
-
-### 🚀 **Perfect For:**
-
-- **DeFi Traders** looking for automated trading solutions
-- **Developers** building trading applications and dashboards
-- **Crypto Enthusiasts** wanting to explore DeFi trading strategies
-- **Institutions** requiring reliable, scalable trading infrastructure
-- **Researchers** studying automated trading and market dynamics
-
-### 🔧 **Technical Highlights:**
-
-- **TypeScript**: Full type safety and modern development experience
-- **Express.js**: RESTful API with comprehensive error handling
-- **Ethers.js**: Robust Ethereum interaction and transaction management
-- **Raydium SDK**: Advanced Solana DEX integration
-- **Environment Security**: Secure key management and configuration
-- **Gas Optimization**: Efficient transaction handling and cost management
-
 ## 📋 Table of Contents
 
 - [Features](#-features)
